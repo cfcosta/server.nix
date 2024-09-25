@@ -43,7 +43,6 @@ in
         zroot = {
           type = "zpool";
           rootFsOptions = {
-            # https://wiki.archlinux.org/title/Install_Arch_Linux_on_ZFS
             acltype = "posixacl";
             atime = "off";
             compression = "zstd";
@@ -82,6 +81,11 @@ in
           };
         };
       };
+    };
+
+    services.zfs = {
+      autoScrub.enable = true;
+      autoSnapshot.enable = true;
     };
   };
 }

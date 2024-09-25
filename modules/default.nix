@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (builtins) attrValues;
+  inherit (builtins) attrValues hashString substring;
   inherit (lib)
     flatten
     lowPrio
@@ -87,6 +87,8 @@ in
 
     networking = {
       inherit (cfg) hostName;
+
+      hostId = substring 0 8 (hashString "md5" cfg.hostName);
     };
 
     nix = {
