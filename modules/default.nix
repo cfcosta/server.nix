@@ -1,6 +1,7 @@
 { lib, pkgs, ... }:
 let
-  inherit (lib) lowPrio;
+  inherit (builtins) attrValues;
+  inherit (lib) flatten lowPrio;
 in
 {
   imports = [
@@ -32,10 +33,7 @@ in
         gitMinimal
       ];
 
-    users.users.root.openssh.authorizedKeys.keys = [
-      # TODO: change this to your ssh key
-      "CHANGE"
-    ];
+    users.users.root.openssh.authorizedKeys.keys = flatten (attrValues (import ./../keys.nix));
 
     system.stateVersion = "24.11";
   };
