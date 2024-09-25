@@ -1,10 +1,10 @@
 { config, lib, ... }:
 let
   inherit (lib) mkOption types;
-  cfg = config.Server;
+  cfg = config.dusk;
 in
 {
-  options.Server.disks.main.device = mkOption {
+  options.dusk.disks.main.device = mkOption {
     type = types.str;
     description = "The main disk of this system, where the root OS is going to be installed.";
   };

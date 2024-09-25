@@ -1,14 +1,8 @@
 { config, lib, ... }:
-let
-  inherit (lib) mkEnableOption mkForce mkIf;
-  cfg = config.Server.targets.digitalOcean;
-in
 {
-  options.Server.targets.digitalOcean.enable = mkEnableOption "Host configuration for DigitalOcean nodes";
-
-  config = mkIf cfg.enable {
+  config = lib.mkIf (config.dusk.target == "digitalocean") {
     # do not use DHCP, as DigitalOcean provisions IPs using cloud-init
-    networking.useDHCP = mkForce false;
+    networking.useDHCP = lib.mkForce false;
 
     services.cloud-init = {
       enable = true;

@@ -59,6 +59,8 @@
               shfmt.enable = true;
             };
           };
+
+          buildRoot = name: self.outputs.nixosConfigurations."${name}".config.system.build;
         in
         {
           checks = {
@@ -68,8 +70,10 @@
           devShells.default = mkShell {
             inherit (pre-commit-check) shellHook;
           };
-
-          packages.default = self.outputs.nixosConfigurations.default.config.system.build.toplevel;
+          packages = {
+            default = (buildRoot "default").toplevel;
+            vm = (buildRoot "qemu").vm;
+          };
         }
       );
     in
@@ -81,6 +85,21 @@
         modules = [
           disko.nixosModules.disko
           ./modules
+          { config.dusk.target = "digitalocean"; }
+        ];
+
+        specialArgs = {
+          inherit inputs;
+        };
+      };
+
+      nixosConfigurations.qemu = nixpkgs.lib.nixosSystem {
+        pkgs = import nixpkgs { system = "x86_64-linux"; };
+
+        modules = [
+          disko.nixosModules.disko
+          ./modules
+          { config.dusk.target = "qemu"; }
         ];
 
         specialArgs = {

@@ -15,7 +15,7 @@ let
     mkOption
     types
     ;
-  cfg = config.Server;
+  cfg = config.dusk;
 in
 {
   imports = [
@@ -23,7 +23,7 @@ in
     ./targets
   ];
 
-  options.Server = {
+  options.dusk = {
     username = mkOption {
       type = types.str;
       default = "ghost";
@@ -40,6 +40,14 @@ in
       type = types.str;
       default = "ghost";
       description = "The hostName this machine should assume";
+    };
+
+    target = mkOption {
+      type = types.enum [
+        "digitalocean"
+        "qemu"
+      ];
+      description = "The target host configuration to use";
     };
   };
 
@@ -144,7 +152,7 @@ in
         PermitUserEnvironment = mkForce false;
         AllowAgentForwarding = mkForce false;
         AllowTcpForwarding = mkForce false;
-        PermitTunnel = mkForce true;
+        PermitTunnel = mkForce false;
       };
     };
 
