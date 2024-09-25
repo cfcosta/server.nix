@@ -99,10 +99,7 @@ in
 
       nixPath = mkForce [ "/etc/nix/inputs" ];
 
-      registry = {
-        nixpkgs = mkForce { flake = inputs.nixpkgs; };
-        nix-darwin = mkForce { flake = inputs.nix-darwin; };
-      };
+      registry.nixpkgs = mkForce { flake = inputs.nixpkgs; };
 
       settings = {
         accept-flake-config = true;
