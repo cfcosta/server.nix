@@ -1,13 +1,47 @@
-{ lib, pkgs, ... }:
+{
+  config,
+  inputs,
+  lib,
+  pkgs,
+  ...
+}:
 let
   inherit (builtins) attrValues;
-  inherit (lib) flatten lowPrio;
+  inherit (lib)
+    flatten
+    lowPrio
+    mkDefault
+    mkForce
+    mkOption
+    types
+    ;
+  cfg = config.Server;
 in
 {
   imports = [
     ./common
     ./targets
   ];
+
+  options.Server = {
+    username = mkOption {
+      type = types.str;
+      default = "ghost";
+      description = "The user to create (used for remote access, as root is disabled).";
+    };
+
+    locale = mkOption {
+      type = types.str;
+      default = "en_US.UTF-8";
+      description = "The system locale";
+    };
+
+    hostName = mkOption {
+      type = types.str;
+      default = "ghost";
+      description = "The hostName this machine should assume";
+    };
+  };
 
   config = {
     boot.loader.grub = {
@@ -24,17 +58,103 @@ in
       ];
     };
 
-    services.openssh.enable = true;
+    environment = {
+      defaultPackages = mkForce [ ];
 
-    environment.systemPackages =
-      with pkgs;
-      map lowPrio [
-        curl
-        gitMinimal
-      ];
+      etc."nix/inputs/nixpkgs" = mkForce { source = inputs.nixpkgs; };
 
-    users.users.root.openssh.authorizedKeys.keys = flatten (attrValues (import ./../keys.nix));
+      systemPackages =
+        with pkgs;
+        map lowPrio [
+          curl
+          gitMinimal
+        ];
+    };
+
+    i18n.defaultLocale = cfg.locale;
+
+    i18n.extraLocaleSettings = {
+      LC_ADDRESS = cfg.locale;
+      LC_IDENTIFICATION = cfg.locale;
+      LC_MEASUREMENT = cfg.locale;
+      LC_MONETARY = cfg.locale;
+      LC_NAME = cfg.locale;
+      LC_NUMERIC = cfg.locale;
+      LC_PAPER = cfg.locale;
+      LC_TELEPHONE = cfg.locale;
+      LC_TIME = cfg.locale;
+    };
+
+    networking = {
+      inherit (cfg) hostName;
+    };
+
+    nix = {
+      package = pkgs.nix;
+
+      gc.automatic = true;
+      optimise.automatic = true;
+
+      nixPath = mkForce [ "/etc/nix/inputs" ];
+
+      registry = {
+        nixpkgs = mkForce { flake = inputs.nixpkgs; };
+        nix-darwin = mkForce { flake = inputs.nix-darwin; };
+      };
+
+      settings = {
+        accept-flake-config = true;
+        allow-import-from-derivation = true;
+        auto-optimise-store = true;
+
+        trusted-users = [ cfg.username ];
+
+        experimental-features = [
+          "nix-command"
+          "flakes"
+        ];
+
+        system-features = [
+          "nixos-test"
+          "benchmark"
+          "big-parallel"
+          "kvm"
+        ];
+      };
+    };
+
+    security = {
+      audit = {
+        enable = mkDefault true;
+        rules = [ "-a exit,always -F arch=b64 -S execve" ];
+      };
+
+      auditd.enable = mkDefault true;
+    };
+
+    services.openssh = {
+      enable = true;
+
+      settings = {
+        PermitRootLogin = mkForce "no";
+        PasswordAuthentication = mkForce false;
+        ChallengeResponseAuthentication = mkForce false;
+        GSSAPIAuthentication = mkForce false;
+        KerberosAuthentication = mkForce false;
+        X11Forwarding = mkForce false;
+        PermitUserEnvironment = mkForce false;
+        AllowAgentForwarding = mkForce false;
+        AllowTcpForwarding = mkForce false;
+        PermitTunnel = mkForce true;
+      };
+    };
 
     system.stateVersion = "24.11";
+
+    users.users.${cfg.username} = {
+      extraGroups = [ "wheel" ];
+      isNormalUser = true;
+      openssh.authorizedKeys.keys = flatten (attrValues (import ./../keys.nix));
+    };
   };
 }
