@@ -9,10 +9,18 @@ in
   ];
 
   config = {
-    # no need to set devices, disko will add all devices that have a EF02 partition to the list already
     boot.loader.grub = {
+      enable = true;
+
+      zfsSupport = true;
       efiSupport = true;
       efiInstallAsRemovable = true;
+      mirroredBoots = [
+        {
+          devices = [ "nodev" ];
+          path = "/boot";
+        }
+      ];
     };
 
     services.openssh.enable = true;
