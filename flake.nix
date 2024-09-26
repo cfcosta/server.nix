@@ -91,7 +91,7 @@
       checks = mapAttrs (_: lib: lib.deployChecks self.deploy) deploy-rs.lib;
 
       deploy.nodes.mothership = {
-        hostname = "134.209.125.124";
+        hostname = "157.245.143.219";
         ssh_user = "root";
 
         profiles = {

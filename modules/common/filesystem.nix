@@ -10,6 +10,8 @@ in
   };
 
   config = {
+    boot.supportedFilesystems.zfs = true;
+
     disko.devices = {
       disk = {
         main = {

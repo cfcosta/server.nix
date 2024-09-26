@@ -96,6 +96,7 @@ in
     networking = {
       inherit (cfg) hostName;
 
+      firewall.enable = false;
       hostId = substring 0 8 (hashString "md5" cfg.hostName);
     };
 
@@ -143,7 +144,7 @@ in
       enable = true;
 
       settings = {
-        PermitRootLogin = mkForce "no";
+        PermitRootLogin = mkForce "prohibit-password";
         PasswordAuthentication = mkForce false;
         ChallengeResponseAuthentication = mkForce false;
         GSSAPIAuthentication = mkForce false;
