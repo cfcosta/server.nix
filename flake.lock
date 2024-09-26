@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "chronicle": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1727280784,
+        "narHash": "sha256-ZMKNDOzDydlrsNKGTSf/3BdxdL3B/A4vJJM+F5Vxdd8=",
+        "owner": "dtonon",
+        "repo": "chronicle",
+        "rev": "6f8280e539496e3b5e0cc2b222a3b0edd1cebe6d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dtonon",
+        "repo": "chronicle",
+        "type": "github"
+      }
+    },
     "deploy-rs": {
       "inputs": {
         "flake-compat": [
@@ -162,6 +178,7 @@
     },
     "root": {
       "inputs": {
+        "chronicle": "chronicle",
         "deploy-rs": "deploy-rs",
         "disko": "disko",
         "flake-compat": "flake-compat",

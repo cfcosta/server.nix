@@ -2,13 +2,17 @@
   description = "A modular server configuration";
 
   inputs = {
-    flake-compat.url = "github:nix-community/flake-compat";
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-compat.url = "github:nix-community/flake-compat";
     systems.url = "github:nix-systems/default";
-
     flake-utils = {
       url = "github:numtide/flake-utils";
       inputs.systems.follows = "systems";
+    };
+
+    chronicle = {
+      url = "github:dtonon/chronicle";
+      flake = false;
     };
 
     deploy-rs = {
@@ -90,8 +94,8 @@
     // {
       checks = mapAttrs (_: lib: lib.deployChecks self.deploy) deploy-rs.lib;
 
-      deploy.nodes.mothership = {
-        hostname = "157.245.143.219";
+      deploy.nodes.nostr-relay = {
+        hostname = "nixos.orb.local";
         ssh_user = "root";
 
         profiles = {
@@ -100,25 +104,29 @@
             path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.default;
           };
 
-          mothership = {
-            user = "root";
-            path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.default;
+          nostr-relay = {
+            user = "dusk";
+            path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.nostr-relay;
           };
         };
       };
 
-      nixosConfigurations.default = nixpkgs.lib.nixosSystem {
-        pkgs = import nixpkgs { system = "x86_64-linux"; };
+      nixosConfigurations = {
+        default = nixpkgs.lib.nixosSystem {
+          pkgs = import nixpkgs { system = "x86_64-linux"; };
 
-        modules = [
-          disko.nixosModules.disko
-          ./modules
-          { config.dusk.target = "digitalocean"; }
-        ];
+          modules = [
+            disko.nixosModules.disko
+            ./modules
+            { config.dusk.target = "digitalocean"; }
+          ];
 
-        specialArgs = {
-          inherit inputs;
+          specialArgs = {
+            inherit inputs;
+          };
         };
+
+        nostr-relay = import ./profiles/nostr-relay { inherit inputs; };
       };
     };
 }
