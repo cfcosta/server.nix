@@ -12,7 +12,7 @@ nixpkgs.lib.nixosSystem {
     {
       config = {
         dusk = {
-          target = "digitalocean";
+          target = "linode";
 
           nostr-relay = {
             name = "My Cool Relay";

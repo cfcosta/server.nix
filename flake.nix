@@ -95,7 +95,7 @@
       checks = mapAttrs (_: lib: lib.deployChecks self.deploy) deploy-rs.lib;
 
       deploy.nodes.nostr-relay = {
-        hostname = "nixos.orb.local";
+        hostname = "143.244.203.153";
         ssh_user = "root";
 
         profiles = {
@@ -113,12 +113,14 @@
 
       nixosConfigurations = {
         default = nixpkgs.lib.nixosSystem {
-          pkgs = import nixpkgs { system = "x86_64-linux"; };
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+          };
 
           modules = [
             disko.nixosModules.disko
             ./modules
-            { config.dusk.target = "digitalocean"; }
+            { config.dusk.target = "vultr"; }
           ];
 
           specialArgs = {
@@ -126,7 +128,11 @@
           };
         };
 
-        nostr-relay = import ./profiles/nostr-relay { inherit inputs; };
+        nostr-relay = import ./profiles/nostr-relay {
+          inherit inputs;
+
+          pkgs = import nixpkgs { system = "x86_64-linux"; };
+        };
       };
     };
 }

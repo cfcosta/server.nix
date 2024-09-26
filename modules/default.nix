@@ -45,7 +45,9 @@ in
     target = mkOption {
       type = types.enum [
         "digitalocean"
+        "linode"
         "qemu"
+        "vultr"
       ];
       description = "The target host configuration to use";
     };
@@ -55,7 +57,6 @@ in
     boot.loader.grub = {
       enable = true;
 
-      zfsSupport = true;
       efiSupport = true;
       efiInstallAsRemovable = true;
       mirroredBoots = [
@@ -74,8 +75,12 @@ in
       systemPackages =
         with pkgs;
         map lowPrio [
+          bash
           curl
           gitMinimal
+          inetutils
+          mtr
+          sysstat
         ];
     };
 
