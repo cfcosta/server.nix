@@ -26,7 +26,7 @@ in
   options.dusk = {
     username = mkOption {
       type = types.str;
-      default = "ghost";
+      default = "dusk";
       description = "The user to create (used for remote access, as root is disabled).";
     };
 
@@ -158,10 +158,14 @@ in
 
     system.stateVersion = "24.11";
 
-    users.users.${cfg.username} = {
-      extraGroups = [ "wheel" ];
-      isNormalUser = true;
-      openssh.authorizedKeys.keys = flatten (attrValues (import ./../keys.nix));
+    users.users = {
+      ${cfg.username} = {
+        extraGroups = [ "wheel" ];
+        isNormalUser = true;
+        openssh.authorizedKeys.keys = flatten (attrValues (import ./../keys.nix));
+      };
+
+      root.openssh.authorizedKeys.keys = flatten (attrValues (import ./../keys.nix));
     };
   };
 }
