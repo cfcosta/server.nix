@@ -2,12 +2,23 @@
   description = "A modular server configuration";
 
   inputs = {
+    flake-compat.url = "github:nix-community/flake-compat";
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     systems.url = "github:nix-systems/default";
-    flake-compat.url = "github:nix-community/flake-compat";
+
     flake-utils = {
       url = "github:numtide/flake-utils";
       inputs.systems.follows = "systems";
+    };
+
+    deploy-rs = {
+      url = "github:serokell/deploy-rs";
+
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-compat.follows = "flake-compat";
+        utils.follows = "flake-utils";
+      };
     };
 
     disko = {
@@ -34,6 +45,7 @@
     inputs@{
       self,
 
+      deploy-rs,
       disko,
       flake-utils,
       nixpkgs,
@@ -41,6 +53,8 @@
       ...
     }:
     let
+      inherit (builtins) mapAttrs;
+
       perSystem = flake-utils.lib.eachDefaultSystem (
         system:
         let
@@ -59,8 +73,6 @@
               shfmt.enable = true;
             };
           };
-
-          buildRoot = name: self.outputs.nixosConfigurations."${name}".config.system.build;
         in
         {
           checks = {
@@ -69,16 +81,32 @@
 
           devShells.default = mkShell {
             inherit (pre-commit-check) shellHook;
-          };
-          packages = {
-            default = (buildRoot "default").toplevel;
-            vm = (buildRoot "qemu").vm;
+            packages = [ deploy-rs.packages.${system}.default ];
           };
         }
       );
     in
     perSystem
     // {
+      checks = mapAttrs (_: lib: lib.deployChecks self.deploy) deploy-rs.lib;
+
+      deploy.nodes.mothership = {
+        hostname = "134.209.125.124";
+        ssh_user = "root";
+
+        profiles = {
+          system = {
+            user = "root";
+            path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.default;
+          };
+
+          mothership = {
+            user = "root";
+            path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.default;
+          };
+        };
+      };
+
       nixosConfigurations.default = nixpkgs.lib.nixosSystem {
         pkgs = import nixpkgs { system = "x86_64-linux"; };
 
@@ -86,20 +114,6 @@
           disko.nixosModules.disko
           ./modules
           { config.dusk.target = "digitalocean"; }
-        ];
-
-        specialArgs = {
-          inherit inputs;
-        };
-      };
-
-      nixosConfigurations.qemu = nixpkgs.lib.nixosSystem {
-        pkgs = import nixpkgs { system = "x86_64-linux"; };
-
-        modules = [
-          disko.nixosModules.disko
-          ./modules
-          { config.dusk.target = "qemu"; }
         ];
 
         specialArgs = {

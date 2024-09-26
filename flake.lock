@@ -1,5 +1,31 @@
 {
   "nodes": {
+    "deploy-rs": {
+      "inputs": {
+        "flake-compat": [
+          "flake-compat"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "utils": [
+          "flake-utils"
+        ]
+      },
+      "locked": {
+        "lastModified": 1718194053,
+        "narHash": "sha256-FaGrf7qwZ99ehPJCAwgvNY5sLCqQ3GDiE/6uLhxxwSY=",
+        "owner": "serokell",
+        "repo": "deploy-rs",
+        "rev": "3867348fa92bc892eba5d9ddb2d7a97b9e127a8a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "serokell",
+        "repo": "deploy-rs",
+        "type": "github"
+      }
+    },
     "disko": {
       "inputs": {
         "nixpkgs": [
@@ -136,6 +162,7 @@
     },
     "root": {
       "inputs": {
+        "deploy-rs": "deploy-rs",
         "disko": "disko",
         "flake-compat": "flake-compat",
         "flake-utils": "flake-utils",
