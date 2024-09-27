@@ -13,11 +13,11 @@ let
     types
     ;
 
-  chronicle = pkgs.buildGoModule {
+  chronicle = pkgs.buildGo123Module {
     pname = "chronicle";
     version = inputs.chronicle.shortRev;
     src = inputs.chronicle;
-    vendorHash = "";
+    vendorHash = "sha256-6vzytQ4e+ECMGZMUpo9EPdI8Bw0W81+aVdqqYRohHJU=";
   };
 in
 {
