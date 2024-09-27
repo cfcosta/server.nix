@@ -14,34 +14,34 @@ let
     ;
 
   chronicle = pkgs.buildGo123Module {
-    pname = "chronicle";
+    pname = "chronicle-unwrapped";
     version = inputs.chronicle.shortRev;
     src = inputs.chronicle;
     vendorHash = "sha256-6vzytQ4e+ECMGZMUpo9EPdI8Bw0W81+aVdqqYRohHJU=";
   };
 
-  wrappedChronicle = pkgs.symlinkJoin {
-    name = "wrapped-chronicle";
+  service = pkgs.symlinkJoin {
+    name = "chronicle";
     paths = [ chronicle ];
     buildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/chronicle \
-        --set DB_PATH "${config.dusk.chronicle.rootDir}/db" \
-        --set OWNER_PUBKEY "${config.dusk.chronicle.ownerPubkey}" \
-        --set RELAY_NAME "${config.dusk.chronicle.name}" \
-        --set RELAY_DESCRIPTION "${config.dusk.chronicle.description}" \
-        --set RELAY_URL "${config.dusk.chronicle.url}" \
-        --set RELAY_PORT "${toString config.dusk.chronicle.port}" \
-        --set RELAY_ICON "${config.dusk.chronicle.icon}" \
-        --set RELAY_CONTACT "${config.dusk.chronicle.contact}" \
-        --set REFRESH_INTERVAL "${toString config.dusk.chronicle.refreshInterval}" \
-        --set MIN_FOLLOWERS "${toString config.dusk.chronicle.minFollowers}" \
-        --set FETCH_SYNC "${if config.dusk.chronicle.fetchSync then "TRUE" else "FALSE"}"
+        --set DB_PATH "${config.services.chronicle.rootDir}/db" \
+        --set OWNER_PUBKEY "${config.services.chronicle.ownerPubkey}" \
+        --set RELAY_NAME "${config.services.chronicle.name}" \
+        --set RELAY_DESCRIPTION "${config.services.chronicle.description}" \
+        --set RELAY_URL "${config.services.chronicle.url}" \
+        --set RELAY_PORT "${toString config.services.chronicle.port}" \
+        --set RELAY_ICON "${config.services.chronicle.icon}" \
+        --set RELAY_CONTACT "${config.services.chronicle.contact}" \
+        --set REFRESH_INTERVAL "${toString config.services.chronicle.refreshInterval}" \
+        --set MIN_FOLLOWERS "${toString config.services.chronicle.minFollowers}" \
+        --set FETCH_SYNC "${if config.services.chronicle.fetchSync then "TRUE" else "FALSE"}"
     '';
   };
 in
 {
-  options.dusk.chronicle = {
+  options.services.chronicle = {
     enable = mkEnableOption "Enable the Chronicle Nostr Relay";
 
     ownerPubkey = mkOption {
@@ -118,7 +118,7 @@ in
     };
   };
 
-  config = mkIf config.dusk.chronicle.enable {
+  config = mkIf config.services.chronicle.enable {
     systemd.services.chronicle = {
       description = "Chronicle Nostr Relay";
 
@@ -126,25 +126,25 @@ in
       wantedBy = [ "multi-user.target" ];
 
       serviceConfig = {
-        ExecStart = "${wrappedChronicle}/bin/chronicle";
+        ExecStart = "${service}/bin/chronicle";
         Restart = "always";
-        User = config.dusk.chronicle.user;
-        Group = config.dusk.chronicle.group;
-        WorkingDirectory = config.dusk.chronicle.rootDir;
+        User = config.services.chronicle.user;
+        Group = config.services.chronicle.group;
+        WorkingDirectory = config.services.chronicle.rootDir;
       };
     };
 
     users = {
-      users.${config.dusk.chronicle.user} = {
+      users.${config.services.chronicle.user} = {
         isSystemUser = true;
-        group = config.dusk.chronicle.group;
-        home = config.dusk.chronicle.rootDir;
+        group = config.services.chronicle.group;
+        home = config.services.chronicle.rootDir;
         createHome = true;
       };
 
-      groups.${config.dusk.chronicle.group} = { };
+      groups.${config.services.chronicle.group} = { };
     };
 
-    networking.firewall.allowedTCPPorts = [ config.dusk.chronicle.port ];
+    networking.firewall.allowedTCPPorts = [ config.services.chronicle.port ];
   };
 }

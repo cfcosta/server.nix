@@ -4,7 +4,7 @@
     ./chronicle.nix
   ];
 
-  config.dusk.chronicle = {
+  config.services.chronicle = {
     enable = true;
 
     ownerPubkey = "xxx";
