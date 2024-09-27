@@ -105,7 +105,7 @@ in
     };
 
     time = {
-      inherit (config.dusk.timeZone) timeZone;
+      inherit (config.dusk) timeZone;
     };
 
     networking = {

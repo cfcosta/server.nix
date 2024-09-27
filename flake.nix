@@ -116,7 +116,7 @@
           modules = [
             disko.nixosModules.disko
             ./bootstrap
-            { config.dusk.target = "vultr"; }
+            { config.dusk.target = "digitalocean"; }
           ];
 
           specialArgs = {
@@ -133,7 +133,7 @@
             disko.nixosModules.disko
             ./bootstrap
             ./profiles/nostr-relay
-            { config.dusk.target = "vultr"; }
+            { config.dusk.target = "digitalocean"; }
           ];
 
           specialArgs = {

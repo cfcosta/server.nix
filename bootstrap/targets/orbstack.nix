@@ -6,6 +6,7 @@
 }:
 let
   inherit (builtins) listToAttrs;
+  inherit (lib) mkForce mkIf;
 
   disabledWatchdogs =
     let
@@ -48,7 +49,7 @@ in
     "${modulesPath}/virtualisation/lxc-container.nix"
   ];
 
-  config = {
+  config = mkIf (config.dusk.target == "orbstack") {
     users = {
       # This being `true` leads to a few nasty bugs, change at your own risk!
       mutableUsers = false;
@@ -96,11 +97,11 @@ in
     };
 
     networking = {
-      useDHCP = lib.mkForce false;
-      useHostResolvConf = lib.mkForce false;
+      useDHCP = mkForce false;
+      useHostResolvConf = mkForce false;
 
       dhcpcd = {
-        enable = lib.mkForce false;
+        enable = mkForce false;
         extraConfig = ''
           noarp
           noipv6
@@ -109,8 +110,8 @@ in
     };
 
     services = {
-      resolved.enable = lib.mkForce false;
-      openssh.enable = lib.mkForce false;
+      resolved.enable = mkForce false;
+      openssh.enable = mkForce false;
     };
 
     # Program configurations
