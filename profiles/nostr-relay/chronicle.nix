@@ -42,6 +42,13 @@ in
     url = mkOption {
       description = "The URL of the Nostr Relay.";
       type = types.str;
+      default = "localhost";
+    };
+
+    port = mkOption {
+      description = "The port of the Nostr Relay.";
+      type = types.int;
+      default = 8080;
     };
 
     icon = mkOption {
@@ -114,6 +121,7 @@ in
           "RELAY_NAME=${config.dusk.chronicle.name}"
           "RELAY_DESCRIPTION=${config.dusk.chronicle.description}"
           "RELAY_URL=${config.dusk.chronicle.url}"
+          "RELAY_PORT=${toString config.dusk.chronicle.port}"
           "RELAY_ICON=${config.dusk.chronicle.icon}"
           "RELAY_CONTACT=${config.dusk.chronicle.contact}"
           "DB_PATH=${config.dusk.chronicle.dbDir}"
