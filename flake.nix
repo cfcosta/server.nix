@@ -114,12 +114,10 @@
         hostname = "relay";
         fastConnection = true;
 
-        profiles = {
-          nostr-relay = {
-            user = "root";
-            sshUser = "root";
-            path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.nostr-relay;
-          };
+        profiles.nostr-relay = {
+          user = "root";
+          sshUser = "root";
+          path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.nostr-relay;
         };
       };
 
@@ -131,7 +129,7 @@
 
           modules = [
             disko.nixosModules.disko
-            ./bootstrap
+            ./profiles/bootstrap
             { config.dusk.target = "vultr"; }
           ];
 
@@ -147,7 +145,7 @@
 
           modules = [
             disko.nixosModules.disko
-            ./bootstrap
+            ./profiles/bootstrap
             ./profiles/nostr-relay
             { config.dusk.target = "vultr"; }
           ];
