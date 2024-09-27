@@ -35,13 +35,29 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixos-anywhere = {
+      url = "github:nix-community/nixos-anywhere";
+
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        disko.follows = "disko";
+        treefmt-nix.follows = "treefmt-nix";
+      };
+    };
+
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
+
       inputs = {
         nixpkgs.follows = "nixpkgs";
         gitignore.follows = "gitignore";
         flake-compat.follows = "flake-compat";
       };
+    };
+
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -52,6 +68,7 @@
       deploy-rs,
       disko,
       flake-utils,
+      nixos-anywhere,
       nixpkgs,
       pre-commit-hooks,
       ...
@@ -85,7 +102,10 @@
 
           devShells.default = mkShell {
             inherit (pre-commit-check) shellHook;
-            packages = [ deploy-rs.packages.${system}.default ];
+            packages = [
+              deploy-rs.packages.${system}.default
+              nixos-anywhere.packages.${system}.default
+            ];
           };
         }
       );
