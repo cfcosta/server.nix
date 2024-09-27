@@ -19,6 +19,26 @@ let
     src = inputs.chronicle;
     vendorHash = "sha256-6vzytQ4e+ECMGZMUpo9EPdI8Bw0W81+aVdqqYRohHJU=";
   };
+
+  wrappedChronicle = pkgs.symlinkJoin {
+    name = "wrapped-chronicle";
+    paths = [ chronicle ];
+    buildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/chronicle \
+        --set OWNER_PUBKEY "${config.dusk.chronicle.ownerPubkey}" \
+        --set RELAY_NAME "${config.dusk.chronicle.name}" \
+        --set RELAY_DESCRIPTION "${config.dusk.chronicle.description}" \
+        --set RELAY_URL "${config.dusk.chronicle.url}" \
+        --set RELAY_PORT "${toString config.dusk.chronicle.port}" \
+        --set RELAY_ICON "${config.dusk.chronicle.icon}" \
+        --set RELAY_CONTACT "${config.dusk.chronicle.contact}" \
+        --set DB_PATH "${config.dusk.chronicle.dbDir}" \
+        --set REFRESH_INTERVAL "${toString config.dusk.chronicle.refreshInterval}" \
+        --set MIN_FOLLOWERS "${toString config.dusk.chronicle.minFollowers}" \
+        --set FETCH_SYNC "${if config.dusk.chronicle.fetchSync then "TRUE" else "FALSE"}"
+    '';
+  };
 in
 {
   options.dusk.chronicle = {
@@ -112,23 +132,10 @@ in
       wantedBy = [ "multi-user.target" ];
 
       serviceConfig = {
-        ExecStart = "${chronicle}/bin/chronicle";
+        ExecStart = "${wrappedChronicle}/bin/chronicle";
         Restart = "always";
         User = config.dusk.chronicle.user;
         Group = config.dusk.chronicle.group;
-        Environment = [
-          "OWNER_PUBKEY=${config.dusk.chronicle.ownerPubkey}"
-          "RELAY_NAME=${config.dusk.chronicle.name}"
-          "RELAY_DESCRIPTION=${config.dusk.chronicle.description}"
-          "RELAY_URL=${config.dusk.chronicle.url}"
-          "RELAY_PORT=${toString config.dusk.chronicle.port}"
-          "RELAY_ICON=${config.dusk.chronicle.icon}"
-          "RELAY_CONTACT=${config.dusk.chronicle.contact}"
-          "DB_PATH=${config.dusk.chronicle.dbDir}"
-          "REFRESH_INTERVAL=${toString config.dusk.chronicle.refreshInterval}"
-          "MIN_FOLLOWERS=${toString config.dusk.chronicle.minFollowers}"
-          "FETCH_SYNC=${if config.dusk.chronicle.fetchSync then "TRUE" else "FALSE"}"
-        ];
       };
     };
 

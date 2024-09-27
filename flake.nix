@@ -66,7 +66,6 @@
       self,
 
       deploy-rs,
-      disko,
       flake-utils,
       nixpkgs,
       pre-commit-hooks,
@@ -114,10 +113,14 @@
         hostname = "relay";
         fastConnection = true;
 
-        profiles.nostr-relay = {
-          user = "root";
-          sshUser = "root";
-          path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.nostr-relay;
+        profilesOrder = [ "nostr-relay" ];
+
+        profiles = {
+          nostr-relay = {
+            user = "root";
+            sshUser = "root";
+            path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.nostr-relay;
+          };
         };
       };
 
@@ -128,7 +131,6 @@
           };
 
           modules = [
-            disko.nixosModules.disko
             ./profiles/bootstrap
             { config.dusk.target = "vultr"; }
           ];
@@ -144,8 +146,6 @@
           };
 
           modules = [
-            disko.nixosModules.disko
-            ./profiles/bootstrap
             ./profiles/nostr-relay
             { config.dusk.target = "vultr"; }
           ];

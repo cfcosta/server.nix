@@ -10,6 +10,5 @@ in
     };
 
     dusk.disks.main.device = "/dev/vda";
-    networking.networkmanager.enable = true;
   };
 }

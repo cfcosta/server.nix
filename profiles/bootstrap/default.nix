@@ -2,184 +2,57 @@
   config,
   inputs,
   lib,
-  pkgs,
   ...
 }:
 let
-  inherit (builtins) attrValues;
-  inherit (lib)
-    flatten
-    lowPrio
-    mkDefault
-    mkForce
-    mkOption
-    types
-    ;
+  inherit (lib) mkOption types;
   cfg = config.dusk;
 in
 {
   imports = [
+    inputs.disko.nixosModules.disko
+    ../common.nix
     ./targets
-    ./filesystem.nix
   ];
 
-  options.dusk = {
-    username = mkOption {
-      type = types.str;
-      default = "dusk";
-      description = "The user to create (used for remote access, as root is disabled).";
-    };
-
-    locale = mkOption {
-      type = types.str;
-      default = "en_US.UTF-8";
-      description = "The system locale";
-    };
-
-    hostName = mkOption {
-      type = types.str;
-      default = "ghost";
-      description = "The hostName this machine should assume";
-    };
-
-    target = mkOption {
-      type = types.enum [
-        "digitalocean"
-        "linode"
-        "qemu"
-        "vultr"
-      ];
-      description = "The target host configuration to use";
-    };
-
-    timeZone = mkOption {
-      type = types.str;
-      default = "UTC";
-      description = "The system time zone to use.";
-    };
+  options.dusk.disks.main.device = mkOption {
+    type = types.str;
+    description = "The main disk of this system, where the root OS is going to be installed.";
   };
 
   config = {
-    boot.loader.grub = {
-      enable = true;
+    disko.devices.disk = {
+      main = {
+        inherit (cfg.disks.main) device;
 
-      efiSupport = true;
-      efiInstallAsRemovable = true;
-      mirroredBoots = [
-        {
-          devices = [ "nodev" ];
-          path = "/boot";
-        }
-      ];
-    };
-
-    environment = {
-      defaultPackages = mkForce [ ];
-
-      etc."nix/inputs/nixpkgs" = mkForce { source = inputs.nixpkgs; };
-
-      systemPackages =
-        with pkgs;
-        map lowPrio [
-          bash
-          curl
-          gitMinimal
-          inetutils
-          mtr
-          sysstat
-        ];
-    };
-
-    i18n.defaultLocale = cfg.locale;
-
-    i18n.extraLocaleSettings = {
-      LC_ADDRESS = cfg.locale;
-      LC_IDENTIFICATION = cfg.locale;
-      LC_MEASUREMENT = cfg.locale;
-      LC_MONETARY = cfg.locale;
-      LC_NAME = cfg.locale;
-      LC_NUMERIC = cfg.locale;
-      LC_PAPER = cfg.locale;
-      LC_TELEPHONE = cfg.locale;
-      LC_TIME = cfg.locale;
-    };
-
-    time = {
-      inherit (config.dusk) timeZone;
-    };
-
-    networking = {
-      inherit (cfg) hostName;
-      firewall.enable = false;
-    };
-
-    nix = {
-      package = pkgs.nix;
-
-      gc.automatic = true;
-      optimise.automatic = true;
-
-      nixPath = mkForce [ "/etc/nix/inputs" ];
-
-      registry.nixpkgs = mkForce { flake = inputs.nixpkgs; };
-
-      settings = {
-        accept-flake-config = true;
-        allow-import-from-derivation = true;
-        auto-optimise-store = true;
-
-        trusted-users = [ cfg.username ];
-
-        experimental-features = [
-          "nix-command"
-          "flakes"
-        ];
-
-        system-features = [
-          "nixos-test"
-          "benchmark"
-          "big-parallel"
-          "kvm"
-        ];
+        type = "disk";
+        content = {
+          type = "gpt";
+          partitions = {
+            boot = {
+              size = "1M";
+              type = "EF02"; # for grub MBR
+            };
+            ESP = {
+              size = "1G";
+              type = "EF00";
+              content = {
+                type = "filesystem";
+                format = "vfat";
+                mountpoint = "/boot";
+              };
+            };
+            root = {
+              size = "100%";
+              content = {
+                type = "filesystem";
+                format = "ext4";
+                mountpoint = "/";
+              };
+            };
+          };
+        };
       };
-    };
-
-    security = {
-      audit = {
-        enable = mkDefault true;
-        rules = [ "-a exit,always -F arch=b64 -S execve" ];
-      };
-
-      auditd.enable = mkDefault true;
-    };
-
-    services.openssh = {
-      enable = true;
-
-      settings = {
-        PermitRootLogin = mkForce "prohibit-password";
-        PasswordAuthentication = mkForce false;
-        ChallengeResponseAuthentication = mkForce false;
-        GSSAPIAuthentication = mkForce false;
-        KerberosAuthentication = mkForce false;
-        X11Forwarding = mkForce false;
-        PermitUserEnvironment = mkForce false;
-        AllowAgentForwarding = mkForce false;
-        AllowTcpForwarding = mkForce false;
-        PermitTunnel = mkForce false;
-      };
-    };
-
-    system.stateVersion = "24.11";
-
-    users.users = {
-      ${cfg.username} = {
-        extraGroups = [ "wheel" ];
-        isNormalUser = true;
-        openssh.authorizedKeys.keys = flatten (attrValues (import ./../keys.nix));
-      };
-
-      root.openssh.authorizedKeys.keys = flatten (attrValues (import ./../keys.nix));
     };
   };
 }

@@ -1,18 +1,17 @@
 {
-  imports = [ ./chronicle.nix ];
+  imports = [
+    ../common.nix
+    ./chronicle.nix
+  ];
 
-  config = {
-    dusk.chronicle = {
-      enable = true;
+  config.dusk.chronicle = {
+    enable = true;
 
-      ownerPubkey = "xxx";
-      name = "My Cool Relay";
-      description = "";
-      url = "";
-      icon = "";
-      contact = "";
-    };
-
-    system.stateVersion = "24.11";
+    ownerPubkey = "xxx";
+    name = "My Cool Relay";
+    description = "";
+    url = "";
+    icon = "";
+    contact = "";
   };
 }
