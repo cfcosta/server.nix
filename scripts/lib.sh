@@ -82,8 +82,8 @@ setup_host_linux() {
 }
 
 setup_host_darwin() {
-	setup_darwin_xcode_cli_tools
-	setup_darwin_xcode_license
+	setup_host_darwin_xcode_cli_tools
+	setup_host_darwin_xcode_license
 
 	NIX_ROOT="/run/current-system/sw"
 
