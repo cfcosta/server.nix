@@ -1,9 +1,13 @@
-{ config, lib, ... }:
+{
+  dusk,
+  lib,
+  ...
+}:
 let
   inherit (lib) mkIf;
 in
 {
-  config = mkIf (config.dusk.target == "linode") {
+  config = mkIf (dusk.target == "linode") {
     boot = {
       kernelParams = [ "console=ttyS0,19200n8" ];
 

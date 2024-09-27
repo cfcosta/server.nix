@@ -1,5 +1,6 @@
 {
   config,
+  dusk,
   inputs,
   lib,
   pkgs,
@@ -35,16 +36,6 @@ in
       type = types.str;
       default = "ghost";
       description = "The hostName this machine should assume";
-    };
-
-    target = mkOption {
-      type = types.enum [
-        "digitalocean"
-        "linode"
-        "qemu"
-        "vultr"
-      ];
-      description = "The target host configuration to use";
     };
 
     timeZone = mkOption {
@@ -187,10 +178,10 @@ in
       ${cfg.username} = {
         extraGroups = [ "wheel" ];
         isNormalUser = true;
-        openssh.authorizedKeys.keys = flatten (attrValues (import ./../keys.nix));
+        openssh.authorizedKeys.keys = flatten (attrValues dusk.keys);
       };
 
-      root.openssh.authorizedKeys.keys = flatten (attrValues (import ./../keys.nix));
+      root.openssh.authorizedKeys.keys = flatten (attrValues (dusk.keys));
     };
   };
 }

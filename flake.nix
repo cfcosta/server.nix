@@ -10,6 +10,14 @@
       inputs.systems.follows = "systems";
     };
 
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+      };
+    };
+
     chronicle = {
       url = "github:dtonon/chronicle";
       flake = false;
@@ -131,13 +139,11 @@
             system = "x86_64-linux";
           };
 
-          modules = [
-            ./profiles/bootstrap
-            { config.dusk.target = "vultr"; }
-          ];
+          modules = [ ./profiles/bootstrap ];
 
           specialArgs = {
             inherit inputs;
+            dusk = import ./config.nix;
           };
         };
 
@@ -146,13 +152,24 @@
             system = "x86_64-linux";
           };
 
-          modules = [
-            ./profiles/nostr-relay
-            { config.dusk.target = "vultr"; }
-          ];
+          modules = [ ./profiles/nostr-relay ];
 
           specialArgs = {
             inherit inputs;
+            dusk = import ./config.nix;
+          };
+        };
+
+        matrix-server = nixpkgs.lib.nixosSystem {
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+          };
+
+          modules = [ ./profiles/matrix-server ];
+
+          specialArgs = {
+            inherit inputs;
+            dusk = import ./config.nix;
           };
         };
       };

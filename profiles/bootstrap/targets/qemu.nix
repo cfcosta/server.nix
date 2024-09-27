@@ -1,5 +1,5 @@
 {
-  config,
+  dusk,
   lib,
   modulesPath,
   ...
@@ -9,5 +9,5 @@
     (modulesPath + "/installer/scan/not-detected.nix")
     (modulesPath + "/profiles/qemu-guest.nix")
   ];
-  config = lib.mkIf (config.dusk.target == "qemu") { };
+  config = lib.mkIf (dusk.target == "qemu") { };
 }
