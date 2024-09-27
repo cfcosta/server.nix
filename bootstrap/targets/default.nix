@@ -4,6 +4,5 @@ _: {
     ./linode.nix
     ./qemu.nix
     ./vultr.nix
-    ./orbstack.nix
   ];
 }
