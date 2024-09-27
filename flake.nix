@@ -68,13 +68,12 @@
       deploy-rs,
       disko,
       flake-utils,
-      nixos-anywhere,
       nixpkgs,
       pre-commit-hooks,
       ...
     }:
     let
-      inherit (builtins) mapAttrs;
+      inherit (builtins) attrValues mapAttrs;
 
       perSystem = flake-utils.lib.eachDefaultSystem (
         system:
@@ -102,10 +101,7 @@
 
           devShells.default = mkShell {
             inherit (pre-commit-check) shellHook;
-            packages = [
-              deploy-rs.packages.${system}.default
-              nixos-anywhere.packages.${system}.default
-            ];
+            packages = attrValues (import ./scripts { inherit pkgs system inputs; });
           };
         }
       );
@@ -136,7 +132,7 @@
           modules = [
             disko.nixosModules.disko
             ./bootstrap
-            { config.dusk.target = "digitalocean"; }
+            { config.dusk.target = "vultr"; }
           ];
 
           specialArgs = {
@@ -153,7 +149,7 @@
             disko.nixosModules.disko
             ./bootstrap
             ./profiles/nostr-relay
-            { config.dusk.target = "digitalocean"; }
+            { config.dusk.target = "vultr"; }
           ];
 
           specialArgs = {
