@@ -73,6 +73,7 @@
     }:
     let
       inherit (builtins) attrValues mapAttrs;
+      inherit (deploy-rs.lib.x86_64-linux) activate;
 
       perSystem = flake-utils.lib.eachDefaultSystem (
         system:
@@ -119,7 +120,7 @@
           nostr-relay = {
             user = "root";
             sshUser = "root";
-            path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.nostr-relay;
+            path = activate.nixos self.nixosConfigurations.nostr-relay;
           };
         };
       };

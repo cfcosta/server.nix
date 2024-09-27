@@ -26,6 +26,7 @@ let
     buildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/chronicle \
+        --set DB_PATH "${config.dusk.chronicle.rootDir}/db" \
         --set OWNER_PUBKEY "${config.dusk.chronicle.ownerPubkey}" \
         --set RELAY_NAME "${config.dusk.chronicle.name}" \
         --set RELAY_DESCRIPTION "${config.dusk.chronicle.description}" \
@@ -33,7 +34,6 @@ let
         --set RELAY_PORT "${toString config.dusk.chronicle.port}" \
         --set RELAY_ICON "${config.dusk.chronicle.icon}" \
         --set RELAY_CONTACT "${config.dusk.chronicle.contact}" \
-        --set DB_PATH "${config.dusk.chronicle.dbDir}" \
         --set REFRESH_INTERVAL "${toString config.dusk.chronicle.refreshInterval}" \
         --set MIN_FOLLOWERS "${toString config.dusk.chronicle.minFollowers}" \
         --set FETCH_SYNC "${if config.dusk.chronicle.fetchSync then "TRUE" else "FALSE"}"
@@ -87,12 +87,6 @@ in
       default = "/var/lib/chronicle";
     };
 
-    dbDir = mkOption {
-      description = "The database path for the Nostr Relay.";
-      type = types.str;
-      default = "/var/lib/chronicle/db";
-    };
-
     refreshInterval = mkOption {
       description = "The refresh interval for the Nostr Relay.";
       type = types.int;
@@ -136,6 +130,7 @@ in
         Restart = "always";
         User = config.dusk.chronicle.user;
         Group = config.dusk.chronicle.group;
+        WorkingDirectory = config.dusk.chronicle.rootDir;
       };
     };
 
@@ -149,5 +144,7 @@ in
 
       groups.${config.dusk.chronicle.group} = { };
     };
+
+    networking.firewall.allowedTCPPorts = [ config.dusk.chronicle.port ];
   };
 }
