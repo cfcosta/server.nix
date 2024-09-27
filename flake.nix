@@ -95,24 +95,20 @@
       checks = mapAttrs (_: lib: lib.deployChecks self.deploy) deploy-rs.lib;
 
       deploy.nodes.nostr-relay = {
-        hostname = "143.244.203.153";
-        ssh_user = "root";
+        hostname = "relay";
+        fastConnection = true;
 
         profiles = {
-          system = {
-            user = "root";
-            path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.default;
-          };
-
           nostr-relay = {
-            user = "dusk";
+            user = "root";
+            sshUser = "root";
             path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.nostr-relay;
           };
         };
       };
 
       nixosConfigurations = {
-        default = nixpkgs.lib.nixosSystem {
+        bootstrap = nixpkgs.lib.nixosSystem {
           pkgs = import nixpkgs {
             system = "x86_64-linux";
           };
@@ -128,10 +124,21 @@
           };
         };
 
-        nostr-relay = import ./profiles/nostr-relay {
-          inherit inputs;
+        nostr-relay = nixpkgs.lib.nixosSystem {
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+          };
 
-          pkgs = import nixpkgs { system = "x86_64-linux"; };
+          modules = [
+            disko.nixosModules.disko
+            ./modules
+            ./profiles/nostr-relay
+            { config.dusk.target = "vultr"; }
+          ];
+
+          specialArgs = {
+            inherit inputs;
+          };
         };
       };
     };

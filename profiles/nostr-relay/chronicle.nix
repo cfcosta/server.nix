@@ -21,7 +21,7 @@ let
   };
 in
 {
-  options.dusk.nostr-relay = {
+  options.dusk.chronicle = {
     enable = mkEnableOption "Enable the Chronicle Nostr Relay";
 
     ownerPubkey = mkOption {
@@ -97,7 +97,7 @@ in
     };
   };
 
-  config = mkIf config.dusk.nostr-relay.enable {
+  config = mkIf config.dusk.chronicle.enable {
     systemd.services.chronicle = {
       description = "Chronicle Nostr Relay";
 
@@ -107,32 +107,32 @@ in
       serviceConfig = {
         ExecStart = "${chronicle}/bin/chronicle";
         Restart = "always";
-        User = config.dusk.nostr-relay.user;
-        Group = config.dusk.nostr-relay.group;
+        User = config.dusk.chronicle.user;
+        Group = config.dusk.chronicle.group;
         Environment = [
-          "OWNER_PUBKEY=${config.dusk.nostr-relay.ownerPubkey}"
-          "RELAY_NAME=${config.dusk.nostr-relay.name}"
-          "RELAY_DESCRIPTION=${config.dusk.nostr-relay.description}"
-          "RELAY_URL=${config.dusk.nostr-relay.url}"
-          "RELAY_ICON=${config.dusk.nostr-relay.icon}"
-          "RELAY_CONTACT=${config.dusk.nostr-relay.contact}"
-          "DB_PATH=${config.dusk.nostr-relay.dbDir}"
-          "REFRESH_INTERVAL=${toString config.dusk.nostr-relay.refreshInterval}"
-          "MIN_FOLLOWERS=${toString config.dusk.nostr-relay.minFollowers}"
-          "FETCH_SYNC=${if config.dusk.nostr-relay.fetchSync then "TRUE" else "FALSE"}"
+          "OWNER_PUBKEY=${config.dusk.chronicle.ownerPubkey}"
+          "RELAY_NAME=${config.dusk.chronicle.name}"
+          "RELAY_DESCRIPTION=${config.dusk.chronicle.description}"
+          "RELAY_URL=${config.dusk.chronicle.url}"
+          "RELAY_ICON=${config.dusk.chronicle.icon}"
+          "RELAY_CONTACT=${config.dusk.chronicle.contact}"
+          "DB_PATH=${config.dusk.chronicle.dbDir}"
+          "REFRESH_INTERVAL=${toString config.dusk.chronicle.refreshInterval}"
+          "MIN_FOLLOWERS=${toString config.dusk.chronicle.minFollowers}"
+          "FETCH_SYNC=${if config.dusk.chronicle.fetchSync then "TRUE" else "FALSE"}"
         ];
       };
     };
 
     users = {
-      users.${config.dusk.nostr-relay.user} = {
+      users.${config.dusk.chronicle.user} = {
         isSystemUser = true;
-        group = config.dusk.nostr-relay.group;
-        home = config.dusk.nostr-relay.rootDir;
+        group = config.dusk.chronicle.group;
+        home = config.dusk.chronicle.rootDir;
         createHome = true;
       };
 
-      groups.${config.dusk.nostr-relay.group} = { };
+      groups.${config.dusk.chronicle.group} = { };
     };
   };
 }

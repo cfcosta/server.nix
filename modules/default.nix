@@ -19,8 +19,8 @@ let
 in
 {
   imports = [
-    ./common
     ./targets
+    ./filesystem.nix
   ];
 
   options.dusk = {

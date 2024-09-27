@@ -1,32 +1,15 @@
-{ inputs, pkgs }:
-let
-  inherit (inputs) disko nixpkgs;
-in
-nixpkgs.lib.nixosSystem {
-  inherit pkgs;
+{
+  imports = [ ./chronicle.nix ];
 
-  modules = [
-    disko.nixosModules.disko
-    ../../modules
-    ./service.nix
-    {
-      config = {
-        dusk = {
-          target = "linode";
+  config = {
+    dusk.chronicle = {
+      name = "My Cool Relay";
+      description = "";
+      url = "";
+      icon = "";
+      contact = "";
+    };
 
-          nostr-relay = {
-            name = "My Cool Relay";
-            description = "";
-            url = "";
-            icon = "";
-            contact = "";
-          };
-        };
-      };
-    }
-  ];
-
-  specialArgs = {
-    inherit inputs;
+    system.stateVersion = "24.11";
   };
 }
