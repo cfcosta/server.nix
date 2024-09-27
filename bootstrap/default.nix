@@ -51,6 +51,12 @@ in
       ];
       description = "The target host configuration to use";
     };
+
+    timeZone = mkOption {
+      type = types.str;
+      default = "UTC";
+      description = "The system time zone to use.";
+    };
   };
 
   config = {
@@ -96,6 +102,10 @@ in
       LC_PAPER = cfg.locale;
       LC_TELEPHONE = cfg.locale;
       LC_TIME = cfg.locale;
+    };
+
+    time = {
+      inherit (config.dusk.timeZone) timeZone;
     };
 
     networking = {
