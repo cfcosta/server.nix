@@ -12,11 +12,15 @@
   ];
 
   config = {
+    age.secrets.dendrite-pem.file = dusk.secrets."dendrite.pem";
+
     dusk.dendrite = {
       enable = true;
-      global.privateKey = config.age.secrets.dendrite-pem.path;
-    };
 
-    age.secrets.dendrite-pem.file = dusk.secrets."dendrite.pem";
+      global = {
+        serverName = "matrix.${dusk.domain}";
+        privateKey = config.age.secrets.dendrite-pem.path;
+      };
+    };
   };
 }

@@ -18,6 +18,24 @@ in
   options.dusk.dendrite = {
     enable = mkEnableOption "Dendrite Matrix Server";
 
+    user = mkOption {
+      type = types.str;
+      default = "dendrite";
+      description = "The user to run Dendrite as.";
+    };
+
+    group = mkOption {
+      type = types.str;
+      default = "dendrite";
+      description = "The group to run Dendrite as.";
+    };
+
+    rootDir = mkOption {
+      type = types.str;
+      default = "/var/lib/dendrite";
+      description = "The root directory for Dendrite to run inside.";
+    };
+
     global = {
       serverName = mkOption {
         type = types.str;
@@ -188,7 +206,7 @@ in
       };
       storagePath = mkOption {
         type = types.str;
-        default = "./";
+        default = "${cfg.rootDir}/jetstream";
         description = "Persistent directory to store JetStream streams in.";
       };
       topicPrefix = mkOption {
@@ -672,6 +690,27 @@ in
       postgresql = {
         enable = true;
         enableJIT = true;
+      };
+    };
+
+    systemd.tmpfiles.rules = [
+      "d ${cfg.jetstream.storagePath} 0750 ${cfg.user} ${cfg.group} -"
+    ];
+
+    users.users.${cfg.user} = {
+      isSystemUser = true;
+      group = cfg.group;
+      home = cfg.rootDir;
+      createHome = true;
+    };
+
+    users.groups.${cfg.group} = { };
+
+    systemd.services.dendrite = {
+      serviceConfig = {
+        User = cfg.user;
+        Group = cfg.group;
+        WorkingDir = cfg.rootDir;
       };
     };
   };
