@@ -8,6 +8,8 @@ let
   inherit (inputs) deploy-rs nixos-anywhere;
 in
 {
+  agenix = inputs.agenix.packages.${system}.default;
+
   bootstrap = pkgs.writeShellApplication {
     name = "bootstrap";
 

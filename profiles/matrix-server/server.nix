@@ -1,17 +1,21 @@
-{ config, inputs, lib, ... }:
+{
+  config,
+  lib,
+  ...
+}:
 
 let
-  inherit (lib) mkEnableOption mkIf mkOption types;
+  inherit (lib)
+    mkEnableOption
+    mkIf
+    mkOption
+    types
+    ;
 
-  cfg = config.services.dusk-matrix-server;
+  cfg = config.dusk.dendrite;
 in
 {
-  imports = [
-    inputs.agenix.nixosModules.default
-    ../common.nix
-  ];
-
-  options.services.dusk-matrix-server = {
+  options.dusk.dendrite = {
     enable = mkEnableOption "Dendrite Matrix Server";
 
     global = {
@@ -27,27 +31,32 @@ in
       };
 
       oldPrivateKeys = mkOption {
-        type = types.listOf (types.submodule {
-          options = {
-            privateKey = mkOption {
-              type = types.str;
-              description = "Path to the old private key file.";
+        type = types.listOf (
+          types.submodule {
+            options = {
+              privateKey = mkOption {
+                type = types.str;
+                description = "Path to the old private key file.";
+              };
+
+              publicKey = mkOption {
+                type = types.str;
+                description = "The public key in base64 format.";
+              };
+
+              keyId = mkOption {
+                type = types.str;
+                description = "The key ID.";
+              };
+
+              expiredAt = mkOption {
+                type = types.int;
+                description = "Expiry timestamp in millisecond precision.";
+              };
             };
-            publicKey = mkOption {
-              type = types.str;
-              description = "The public key in base64 format.";
-            };
-            keyId = mkOption {
-              type = types.str;
-              description = "The key ID.";
-            };
-            expiredAt = mkOption {
-              type = types.int;
-              description = "Expiry timestamp in millisecond precision.";
-            };
-          };
-        });
-        default = [];
+          }
+        );
+        default = [ ];
         description = "List of old signing keys that were formerly in use on this domain name.";
       };
 
@@ -77,7 +86,10 @@ in
 
       trustedThirdPartyIdServers = mkOption {
         type = types.listOf types.str;
-        default = ["matrix.org" "vector.im"];
+        default = [
+          "matrix.org"
+          "vector.im"
+        ];
         description = "Lists of domains that the server will trust as identity servers.";
       };
 
@@ -88,24 +100,13 @@ in
       };
 
       presence = {
-        enableInbound = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Controls whether we receive presence events from other servers.";
-        };
-        enableOutbound = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Controls whether we send presence events for our local users to other servers.";
-        };
+        enableInbound = mkEnableOption "inbound presence events from other servers";
+        enableOutbound = mkEnableOption "outbound presence events for local users to other servers";
       };
 
       reportStats = {
-        enabled = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Enables phone-home statistics reporting.";
-        };
+        enable = mkEnableOption "phone-home statistics reporting";
+
         endpoint = mkOption {
           type = types.str;
           default = "https://panopticon.matrix.org/push";
@@ -114,11 +115,7 @@ in
       };
 
       serverNotices = {
-        enabled = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Enables server notices.";
-        };
+        enable = mkEnableOption "server notices";
         localPart = mkOption {
           type = types.str;
           default = "_server";
@@ -181,7 +178,7 @@ in
     jetstream = {
       addresses = mkOption {
         type = types.listOf types.str;
-        default = [];
+        default = [ ];
         description = "A list of NATS Server addresses to connect to.";
       };
       disableTlsValidation = mkOption {
@@ -202,11 +199,7 @@ in
     };
 
     metrics = {
-      enabled = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Enables Prometheus metric collection.";
-      };
+      enable = mkEnableOption "Prometheus metric collection";
       basicAuth = {
         username = mkOption {
           type = types.str;
@@ -222,11 +215,7 @@ in
     };
 
     dnsCache = {
-      enabled = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Enables the optional DNS cache.";
-      };
+      enable = mkEnableOption "the optional DNS cache";
       cacheSize = mkOption {
         type = types.int;
         default = 256;
@@ -240,24 +229,12 @@ in
     };
 
     appServiceApi = {
-      disableTlsValidation = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Disables the validation of TLS certificates of appservices.";
-      };
-      legacyAuth = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Sends the access_token query parameter with appservice requests in addition to the Authorization header.";
-      };
-      legacyPaths = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Uses the legacy unprefixed paths for appservice requests.";
-      };
+      disableTlsValidation = mkEnableOption "disabling the validation of TLS certificates of appservices";
+      legacyAuth = mkEnableOption "sending the access_token query parameter with appservice requests in addition to the Authorization header";
+      legacyPaths = mkEnableOption "using the legacy unprefixed paths for appservice requests";
       configFiles = mkOption {
         type = types.listOf types.str;
-        default = [];
+        default = [ ];
         description = "Appservice configuration files to load into this homeserver.";
       };
     };
@@ -278,11 +255,7 @@ in
         default = "";
         description = "If set, allows registration by anyone who knows the shared secret.";
       };
-      enableRegistrationCaptcha = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Whether to require reCAPTCHA for registration.";
-      };
+      enableRegistrationCaptcha = mkEnableOption "requiring reCAPTCHA for registration";
       recaptchaPublicKey = mkOption {
         type = types.str;
         default = "";
@@ -306,7 +279,7 @@ in
         };
         turnUris = mkOption {
           type = types.listOf types.str;
-          default = [];
+          default = [ ];
           description = "TURN server URIs.";
         };
         turnSharedSecret = mkOption {
@@ -326,7 +299,7 @@ in
         };
       };
       rateLimiting = {
-        enabled = mkOption {
+        enable = mkOption {
           type = types.bool;
           default = true;
           description = "Enables rate limiting.";
@@ -343,7 +316,7 @@ in
         };
         exemptUserIds = mkOption {
           type = types.listOf types.str;
-          default = [];
+          default = [ ];
           description = "User IDs exempt from rate limiting.";
         };
       };
@@ -355,40 +328,36 @@ in
         default = 16;
         description = "How many times to retry sending a failed transaction to a specific server.";
       };
-      disableTlsValidation = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Disables the validation of TLS certificates of remote federated homeservers.";
-      };
-      disableHttpKeepalives = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Disables HTTP keepalives, which also prevents connection reuse.";
-      };
+      disableTlsValidation = mkEnableOption "disabling the validation of TLS certificates of remote federated homeservers";
+      disableHttpKeepalives = mkEnableOption "disabling HTTP keepalives, which also prevents connection reuse";
       keyPerspectives = mkOption {
-        type = types.listOf (types.submodule {
-          options = {
-            serverName = mkOption {
-              type = types.str;
-              description = "The name of the perspective server.";
+        type = types.listOf (
+          types.submodule {
+            options = {
+              serverName = mkOption {
+                type = types.str;
+                description = "The name of the perspective server.";
+              };
+              keys = mkOption {
+                type = types.listOf (
+                  types.submodule {
+                    options = {
+                      keyId = mkOption {
+                        type = types.str;
+                        description = "The ID of the key.";
+                      };
+                      publicKey = mkOption {
+                        type = types.str;
+                        description = "The public key.";
+                      };
+                    };
+                  }
+                );
+                description = "The keys for the perspective server.";
+              };
             };
-            keys = mkOption {
-              type = types.listOf (types.submodule {
-                options = {
-                  keyId = mkOption {
-                    type = types.str;
-                    description = "The ID of the key.";
-                  };
-                  publicKey = mkOption {
-                    type = types.str;
-                    description = "The public key.";
-                  };
-                };
-              });
-              description = "The keys for the perspective server.";
-            };
-          };
-        });
+          }
+        );
         default = [
           {
             serverName = "matrix.org";
@@ -406,11 +375,7 @@ in
         ];
         description = "Perspective keyservers to use as a backup when direct key fetches fail.";
       };
-      preferDirectFetch = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Controls whether Dendrite will prefer to look up keys directly or use perspective servers first.";
-      };
+      preferDirectFetch = mkEnableOption "preferring to look up keys directly instead of using perspective servers first";
     };
 
     mediaApi = {
@@ -424,37 +389,50 @@ in
         default = 10485760;
         description = "The maximum allowed file size (in bytes) for media uploads.";
       };
-      dynamicThumbnails = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Whether to dynamically generate thumbnails if needed.";
-      };
+      dynamicThumbnails = mkEnableOption "dynamically generating thumbnails if needed";
       maxThumbnailGenerators = mkOption {
         type = types.int;
         default = 10;
         description = "The maximum number of simultaneous thumbnail generators to run.";
       };
       thumbnailSizes = mkOption {
-        type = types.listOf (types.submodule {
-          options = {
-            width = mkOption {
-              type = types.int;
-              description = "The width of the thumbnail.";
+        type = types.listOf (
+          types.submodule {
+            options = {
+              width = mkOption {
+                type = types.int;
+                description = "The width of the thumbnail.";
+              };
+              height = mkOption {
+                type = types.int;
+                description = "The height of the thumbnail.";
+              };
+              method = mkOption {
+                type = types.enum [
+                  "crop"
+                  "scale"
+                ];
+                description = "The method to use for creating the thumbnail.";
+              };
             };
-            height = mkOption {
-              type = types.int;
-              description = "The height of the thumbnail.";
-            };
-            method = mkOption {
-              type = types.enum [ "crop" "scale" ];
-              description = "The method to use for creating the thumbnail.";
-            };
-          };
-        });
+          }
+        );
         default = [
-          { width = 32; height = 32; method = "crop"; }
-          { width = 96; height = 96; method = "crop"; }
-          { width = 640; height = 480; method = "scale"; }
+          {
+            width = 32;
+            height = 32;
+            method = "crop";
+          }
+          {
+            width = 96;
+            height = 96;
+            method = "crop";
+          }
+          {
+            width = 640;
+            height = 480;
+            method = "scale";
+          }
         ];
         description = "A list of thumbnail sizes to be generated for media content.";
       };
@@ -463,7 +441,7 @@ in
     mscs = {
       mscs = mkOption {
         type = types.listOf types.str;
-        default = [];
+        default = [ ];
         description = "List of experimental MSCs to enable on this homeserver.";
       };
     };
@@ -475,11 +453,7 @@ in
         description = "The HTTP header to inspect to find the real remote IP address of the client.";
       };
       search = {
-        enabled = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Whether or not search is enabled.";
-        };
+        enable = mkEnableOption "search functionality";
         indexPath = mkOption {
           type = types.str;
           default = "./searchindex";
@@ -506,7 +480,7 @@ in
       };
       autoJoinRooms = mkOption {
         type = types.listOf types.str;
-        default = [];
+        default = [ ];
         description = "Rooms that users will automatically join when they register.";
       };
       workerCount = mkOption {
@@ -517,26 +491,45 @@ in
     };
 
     logging = mkOption {
-      type = types.listOf (types.submodule {
-        options = {
-          type = mkOption {
-            type = types.enum [ "std" "file" ];
-            description = "The type of logging output.";
+      type = types.listOf (
+        types.submodule {
+          options = {
+            type = mkOption {
+              type = types.enum [
+                "std"
+                "file"
+              ];
+              description = "The type of logging output.";
+            };
+            level = mkOption {
+              type = types.enum [
+                "debug"
+                "info"
+                "warn"
+                "error"
+              ];
+              description = "The log level.";
+            };
+            params = mkOption {
+              type = types.attrsOf types.str;
+              default = { };
+              description = "Additional parameters for the logger.";
+            };
           };
-          level = mkOption {
-            type = types.enum [ "debug" "info" "warn" "error" ];
-            description = "The log level.";
-          };
-          params = mkOption {
-            type = types.attrsOf types.str;
-            default = {};
-            description = "Additional parameters for the logger.";
-          };
-        };
-      });
+        }
+      );
       default = [
-        { type = "std"; level = "info"; }
-        { type = "file"; level = "info"; params = { path = "./logs"; }; }
+        {
+          type = "std";
+          level = "info";
+        }
+        {
+          type = "file";
+          level = "info";
+          params = {
+            path = "./logs";
+          };
+        }
       ];
       description = "Logging configuration.";
     };
@@ -563,11 +556,11 @@ in
               enable_outbound = cfg.global.presence.enableOutbound;
             };
             report_stats = {
-              enabled = cfg.global.reportStats.enabled;
+              enabled = cfg.global.reportStats.enable;
               endpoint = cfg.global.reportStats.endpoint;
             };
             server_notices = {
-              enabled = cfg.global.serverNotices.enabled;
+              enabled = cfg.global.serverNotices.enable;
               local_part = cfg.global.serverNotices.localPart;
               display_name = cfg.global.serverNotices.displayName;
               avatar_url = cfg.global.serverNotices.avatarUrl;
@@ -595,7 +588,7 @@ in
           };
 
           metrics = {
-            enabled = cfg.metrics.enabled;
+            enabled = cfg.metrics.enable;
             basic_auth = {
               username = cfg.metrics.basicAuth.username;
               password = cfg.metrics.basicAuth.password;
@@ -603,7 +596,7 @@ in
           };
 
           dns_cache = {
-            enabled = cfg.dnsCache.enabled;
+            enabled = cfg.dnsCache.enable;
             cache_size = cfg.dnsCache.cacheSize;
             cache_lifetime = cfg.dnsCache.cacheLifetime;
           };
@@ -631,7 +624,7 @@ in
               turn_password = cfg.clientApi.turn.turnPassword;
             };
             rate_limiting = {
-              enabled = cfg.clientApi.rateLimiting.enabled;
+              enabled = cfg.clientApi.rateLimiting.enable;
               threshold = cfg.clientApi.rateLimiting.threshold;
               cooloff_ms = cfg.clientApi.rateLimiting.cooloffMs;
               exempt_user_ids = cfg.clientApi.rateLimiting.exemptUserIds;
@@ -659,7 +652,7 @@ in
           sync_api = {
             real_ip_header = cfg.syncApi.realIpHeader;
             search = {
-              enabled = cfg.syncApi.search.enabled;
+              enabled = cfg.syncApi.search.enable;
               index_path = cfg.syncApi.search.indexPath;
               language = cfg.syncApi.search.language;
             };

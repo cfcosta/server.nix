@@ -1,9 +1,22 @@
 {
+  config,
+  inputs,
+  dusk,
+  ...
+}:
+{
   imports = [
+    ../common.nix
     ./server.nix
+    inputs.agenix.nixosModules.default
   ];
 
-  config.services.dusk-matrix-server = {
-    enable = true;
+  config = {
+    dusk.dendrite = {
+      enable = true;
+      global.privateKey = config.age.secrets.dendrite-pem.path;
+    };
+
+    age.secrets.dendrite-pem.file = dusk.secrets."dendrite.pem";
   };
 }

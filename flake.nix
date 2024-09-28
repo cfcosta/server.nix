@@ -118,17 +118,34 @@
     // {
       checks = mapAttrs (_: lib: lib.deployChecks self.deploy) deploy-rs.lib;
 
-      deploy.nodes.nostr-relay = {
-        hostname = "relay";
-        fastConnection = true;
+      deploy.nodes = {
+        nostr-relay = {
+          hostname = "relay";
+          fastConnection = true;
 
-        profilesOrder = [ "nostr-relay" ];
+          profilesOrder = [ "nostr-relay" ];
 
-        profiles = {
-          nostr-relay = {
-            user = "root";
-            sshUser = "root";
-            path = activate.nixos self.nixosConfigurations.nostr-relay;
+          profiles = {
+            nostr-relay = {
+              user = "root";
+              sshUser = "root";
+              path = activate.nixos self.nixosConfigurations.nostr-relay;
+            };
+          };
+        };
+
+        matrix-server = {
+          hostname = "matrix";
+          fastConnection = true;
+
+          profilesOrder = [ "matrix-server" ];
+
+          profiles = {
+            matrix-server = {
+              user = "root";
+              sshUser = "root";
+              path = activate.nixos self.nixosConfigurations.matrix-server;
+            };
           };
         };
       };
