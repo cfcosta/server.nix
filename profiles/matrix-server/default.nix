@@ -7,7 +7,7 @@
 {
   imports = [
     ../common.nix
-    ./server.nix
+    ./dendrite.nix
     inputs.agenix.nixosModules.default
   ];
 

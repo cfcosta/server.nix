@@ -163,16 +163,19 @@ in
         default = "postgresql://username:password@hostname/dendrite?sslmode=disable";
         description = "The connection string for the database.";
       };
+
       maxOpenConns = mkOption {
         type = types.int;
         default = 90;
         description = "The maximum number of open connections to the database.";
       };
+
       maxIdleConns = mkOption {
         type = types.int;
         default = 5;
         description = "The maximum number of connections in the idle connection pool.";
       };
+
       connMaxLifetime = mkOption {
         type = types.int;
         default = -1;
