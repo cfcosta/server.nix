@@ -314,9 +314,9 @@ in
         description = "Prevents new guest accounts from being created.";
       };
 
-      registrationSharedSecret = mkOption {
-        type = types.nullOr types.str;
-        description = "If set, allows registration by anyone who knows the shared secret.";
+      registrationSharedSecretPath = mkOption {
+        type = types.str;
+        description = "The path for the shared registration secret for this homeserver.";
       };
 
       enableRegistrationCaptcha = mkEnableOption "requiring reCAPTCHA for registration";
@@ -619,6 +619,10 @@ in
       dendrite = {
         enable = true;
 
+        environmentFile = pkgs.writeText "dendrite-env.sh" ''
+          export DENDRITE_REGISTRATION_SECRET="$(cat ${cfg.clientAPI.registrationSharedSecretPath})"
+        '';
+
         settings = {
           global = {
             server_name = cfg.global.serverName;
@@ -699,7 +703,7 @@ in
           client_api = {
             registration_disabled = cfg.clientAPI.registrationDisabled;
             guests_disabled = cfg.clientAPI.guestsDisabled;
-            registration_shared_secret = cfg.clientAPI.registrationSharedSecret;
+            registration_shared_secret = "$DENDRITE_REGISTRATION_SECRET";
             enable_registration_captcha = cfg.clientAPI.enableRegistrationCaptcha;
             recaptcha_public_key = cfg.clientAPI.recaptchaPublicKey;
             recaptcha_private_key = cfg.clientAPI.recaptchaPrivateKey;
