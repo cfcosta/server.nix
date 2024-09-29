@@ -243,7 +243,7 @@ in
         default = [ ];
         description = "A list of NATS Server addresses to connect to.";
       };
-      disableTlsValidation = mkOption {
+      disableTLSValidation = mkOption {
         type = types.bool;
         default = false;
         description = "Disable the validation of TLS certificates of NATS.";
@@ -291,7 +291,7 @@ in
     };
 
     appServiceApi = {
-      disableTlsValidation = mkEnableOption "disabling the validation of TLS certificates of appservices";
+      disableTLSValidation = mkEnableOption "disabling the validation of TLS certificates of appservices";
       legacyAuth = mkEnableOption "sending the access_token query parameter with appservice requests in addition to the Authorization header";
       legacyPaths = mkEnableOption "using the legacy unprefixed paths for appservice requests";
       configFiles = mkOption {
@@ -307,32 +307,38 @@ in
         default = true;
         description = "Prevents new users from being able to register on this homeserver.";
       };
+
       guestsDisabled = mkOption {
         type = types.bool;
         default = true;
         description = "Prevents new guest accounts from being created.";
       };
+
       registrationSharedSecret = mkOption {
-        type = types.str;
-        default = "";
+        type = types.nullOr types.str;
         description = "If set, allows registration by anyone who knows the shared secret.";
       };
+
       enableRegistrationCaptcha = mkEnableOption "requiring reCAPTCHA for registration";
+
       recaptchaPublicKey = mkOption {
         type = types.str;
         default = "";
         description = "The public key for ReCAPTCHA.";
       };
+
       recaptchaPrivateKey = mkOption {
         type = types.str;
         default = "";
         description = "The private key for ReCAPTCHA.";
       };
+
       recaptchaBypassSecret = mkOption {
         type = types.str;
         default = "";
         description = "The bypass secret for ReCAPTCHA.";
       };
+
       turn = {
         turnUserLifetime = mkOption {
           type = types.str;
@@ -390,8 +396,10 @@ in
         default = 16;
         description = "How many times to retry sending a failed transaction to a specific server.";
       };
-      disableTlsValidation = mkEnableOption "disabling the validation of TLS certificates of remote federated homeservers";
-      disableHttpKeepalives = mkEnableOption "disabling HTTP keepalives, which also prevents connection reuse";
+
+      disableTLSValidation = mkEnableOption "disabling the validation of TLS certificates of remote federated homeservers";
+      disableHTTPKeepalives = mkEnableOption "disabling HTTP keepalives, which also prevents connection reuse";
+
       keyPerspectives = mkOption {
         type = types.listOf (
           types.submodule {
@@ -653,7 +661,7 @@ in
 
           jetstream = {
             addresses = cfg.jetstream.addresses;
-            disable_tls_validation = cfg.jetstream.disableTlsValidation;
+            disable_tls_validation = cfg.jetstream.disableTLSValidation;
             storage_path = cfg.jetstream.storagePath;
             topic_prefix = cfg.jetstream.topicPrefix;
           };
@@ -673,7 +681,7 @@ in
           };
 
           app_service_api = {
-            disable_tls_validation = cfg.appServiceApi.disableTlsValidation;
+            disable_tls_validation = cfg.appServiceApi.disableTLSValidation;
             legacy_auth = cfg.appServiceApi.legacyAuth;
             legacy_paths = cfg.appServiceApi.legacyPaths;
             config_files = cfg.appServiceApi.configFiles;
@@ -704,8 +712,8 @@ in
 
           federation_api = {
             send_max_retries = cfg.federationApi.sendMaxRetries;
-            disable_tls_validation = cfg.federationApi.disableTlsValidation;
-            disable_http_keepalives = cfg.federationApi.disableHttpKeepalives;
+            disable_tls_validation = cfg.federationApi.disableTLSValidation;
+            disable_http_keepalives = cfg.federationApi.disableHTTPKeepalives;
             key_perspectives = cfg.federationApi.keyPerspectives;
             prefer_direct_fetch = cfg.federationApi.preferDirectFetch;
           };
