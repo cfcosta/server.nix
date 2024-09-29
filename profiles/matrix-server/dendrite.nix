@@ -290,7 +290,7 @@ in
       };
     };
 
-    appServiceApi = {
+    appServiceAPI = {
       disableTLSValidation = mkEnableOption "disabling the validation of TLS certificates of appservices";
       legacyAuth = mkEnableOption "sending the access_token query parameter with appservice requests in addition to the Authorization header";
       legacyPaths = mkEnableOption "using the legacy unprefixed paths for appservice requests";
@@ -301,7 +301,7 @@ in
       };
     };
 
-    clientApi = {
+    clientAPI = {
       registrationDisabled = mkOption {
         type = types.bool;
         default = true;
@@ -366,22 +366,26 @@ in
           description = "The static password for the TURN server.";
         };
       };
+
       rateLimiting = {
         enable = mkOption {
           type = types.bool;
           default = true;
           description = "Enables rate limiting.";
         };
+
         threshold = mkOption {
           type = types.int;
           default = 20;
           description = "The threshold for rate limiting.";
         };
+
         cooloffMs = mkOption {
           type = types.int;
           default = 500;
           description = "The cooloff time in milliseconds for rate limiting.";
         };
+
         exemptUserIds = mkOption {
           type = types.listOf types.str;
           default = [ ];
@@ -390,7 +394,7 @@ in
       };
     };
 
-    federationApi = {
+    federationAPI = {
       sendMaxRetries = mkOption {
         type = types.int;
         default = 16;
@@ -448,17 +452,19 @@ in
       preferDirectFetch = mkEnableOption "preferring to look up keys directly instead of using perspective servers first";
     };
 
-    mediaApi = {
+    mediaAPI = {
       basePath = mkOption {
         type = types.str;
-        default = "./media_store";
+        default = "${cfg.rootDir}/media";
         description = "Storage path for uploaded media.";
       };
+
       maxFileSizeBytes = mkOption {
         type = types.int;
         default = 10485760;
         description = "The maximum allowed file size (in bytes) for media uploads.";
       };
+
       dynamicThumbnails = mkEnableOption "dynamically generating thumbnails if needed";
       maxThumbnailGenerators = mkOption {
         type = types.int;
@@ -516,19 +522,22 @@ in
       };
     };
 
-    syncApi = {
+    syncAPI = {
       realIpHeader = mkOption {
         type = types.str;
         default = "";
         description = "The HTTP header to inspect to find the real remote IP address of the client.";
       };
+
       search = {
         enable = mkEnableOption "search functionality";
+
         indexPath = mkOption {
           type = types.str;
-          default = "./searchindex";
+          default = "${cfg.rootDir}/search-index";
           description = "The path where the search index will be created.";
         };
+
         language = mkOption {
           type = types.str;
           default = "en";
@@ -537,7 +546,7 @@ in
       };
     };
 
-    userApi = {
+    userAPI = {
       bcryptCost = mkOption {
         type = types.int;
         default = 10;
@@ -597,7 +606,7 @@ in
           type = "file";
           level = "info";
           params = {
-            path = "./logs";
+            path = "${cfg.rootDir}/logs";
           };
         }
       ];
@@ -681,67 +690,67 @@ in
           };
 
           app_service_api = {
-            disable_tls_validation = cfg.appServiceApi.disableTLSValidation;
-            legacy_auth = cfg.appServiceApi.legacyAuth;
-            legacy_paths = cfg.appServiceApi.legacyPaths;
-            config_files = cfg.appServiceApi.configFiles;
+            disable_tls_validation = cfg.appServiceAPI.disableTLSValidation;
+            legacy_auth = cfg.appServiceAPI.legacyAuth;
+            legacy_paths = cfg.appServiceAPI.legacyPaths;
+            config_files = cfg.appServiceAPI.configFiles;
           };
 
           client_api = {
-            registration_disabled = cfg.clientApi.registrationDisabled;
-            guests_disabled = cfg.clientApi.guestsDisabled;
-            registration_shared_secret = cfg.clientApi.registrationSharedSecret;
-            enable_registration_captcha = cfg.clientApi.enableRegistrationCaptcha;
-            recaptcha_public_key = cfg.clientApi.recaptchaPublicKey;
-            recaptcha_private_key = cfg.clientApi.recaptchaPrivateKey;
-            recaptcha_bypass_secret = cfg.clientApi.recaptchaBypassSecret;
+            registration_disabled = cfg.clientAPI.registrationDisabled;
+            guests_disabled = cfg.clientAPI.guestsDisabled;
+            registration_shared_secret = cfg.clientAPI.registrationSharedSecret;
+            enable_registration_captcha = cfg.clientAPI.enableRegistrationCaptcha;
+            recaptcha_public_key = cfg.clientAPI.recaptchaPublicKey;
+            recaptcha_private_key = cfg.clientAPI.recaptchaPrivateKey;
+            recaptcha_bypass_secret = cfg.clientAPI.recaptchaBypassSecret;
             turn = {
-              turn_user_lifetime = cfg.clientApi.turn.turnUserLifetime;
-              turn_uris = cfg.clientApi.turn.turnUris;
-              turn_shared_secret = cfg.clientApi.turn.turnSharedSecret;
-              turn_username = cfg.clientApi.turn.turnUsername;
-              turn_password = cfg.clientApi.turn.turnPassword;
+              turn_user_lifetime = cfg.clientAPI.turn.turnUserLifetime;
+              turn_uris = cfg.clientAPI.turn.turnUris;
+              turn_shared_secret = cfg.clientAPI.turn.turnSharedSecret;
+              turn_username = cfg.clientAPI.turn.turnUsername;
+              turn_password = cfg.clientAPI.turn.turnPassword;
             };
             rate_limiting = {
-              enabled = cfg.clientApi.rateLimiting.enable;
-              threshold = cfg.clientApi.rateLimiting.threshold;
-              cooloff_ms = cfg.clientApi.rateLimiting.cooloffMs;
-              exempt_user_ids = cfg.clientApi.rateLimiting.exemptUserIds;
+              enabled = cfg.clientAPI.rateLimiting.enable;
+              threshold = cfg.clientAPI.rateLimiting.threshold;
+              cooloff_ms = cfg.clientAPI.rateLimiting.cooloffMs;
+              exempt_user_ids = cfg.clientAPI.rateLimiting.exemptUserIds;
             };
           };
 
           federation_api = {
-            send_max_retries = cfg.federationApi.sendMaxRetries;
-            disable_tls_validation = cfg.federationApi.disableTLSValidation;
-            disable_http_keepalives = cfg.federationApi.disableHTTPKeepalives;
-            key_perspectives = cfg.federationApi.keyPerspectives;
-            prefer_direct_fetch = cfg.federationApi.preferDirectFetch;
+            send_max_retries = cfg.federationAPI.sendMaxRetries;
+            disable_tls_validation = cfg.federationAPI.disableTLSValidation;
+            disable_http_keepalives = cfg.federationAPI.disableHTTPKeepalives;
+            key_perspectives = cfg.federationAPI.keyPerspectives;
+            prefer_direct_fetch = cfg.federationAPI.preferDirectFetch;
           };
 
           media_api = {
-            base_path = cfg.mediaApi.basePath;
-            max_file_size_bytes = cfg.mediaApi.maxFileSizeBytes;
-            dynamic_thumbnails = cfg.mediaApi.dynamicThumbnails;
-            max_thumbnail_generators = cfg.mediaApi.maxThumbnailGenerators;
-            thumbnail_sizes = cfg.mediaApi.thumbnailSizes;
+            base_path = cfg.mediaAPI.basePath;
+            max_file_size_bytes = cfg.mediaAPI.maxFileSizeBytes;
+            dynamic_thumbnails = cfg.mediaAPI.dynamicThumbnails;
+            max_thumbnail_generators = cfg.mediaAPI.maxThumbnailGenerators;
+            thumbnail_sizes = cfg.mediaAPI.thumbnailSizes;
           };
 
           mscs.mscs = cfg.mscs.mscs;
 
           sync_api = {
-            real_ip_header = cfg.syncApi.realIpHeader;
+            real_ip_header = cfg.syncAPI.realIpHeader;
             search = {
-              enabled = cfg.syncApi.search.enable;
-              index_path = cfg.syncApi.search.indexPath;
-              language = cfg.syncApi.search.language;
+              enabled = cfg.syncAPI.search.enable;
+              index_path = cfg.syncAPI.search.indexPath;
+              language = cfg.syncAPI.search.language;
             };
           };
 
           user_api = {
-            bcrypt_cost = cfg.userApi.bcryptCost;
-            openid_token_lifetime_ms = cfg.userApi.openidTokenLifetimeMs;
-            auto_join_rooms = cfg.userApi.autoJoinRooms;
-            worker_count = cfg.userApi.workerCount;
+            bcrypt_cost = cfg.userAPI.bcryptCost;
+            openid_token_lifetime_ms = cfg.userAPI.openidTokenLifetimeMs;
+            auto_join_rooms = cfg.userAPI.autoJoinRooms;
+            worker_count = cfg.userAPI.workerCount;
           };
 
           logging = cfg.logging;
@@ -781,6 +790,8 @@ in
 
       tmpfiles.rules = [
         "d ${cfg.jetstream.storagePath} 0750 ${cfg.user} ${cfg.group} -"
+        "d ${cfg.mediaAPI.basePath} 0750 ${cfg.user} ${cfg.group} -"
+        "d ${cfg.syncAPI.search.indexPath} 0750 ${cfg.user} ${cfg.group} -"
       ];
     };
 
