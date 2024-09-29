@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 
@@ -13,6 +14,19 @@ let
     ;
 
   cfg = config.dusk.dendrite;
+
+  generateConnectionString =
+    {
+      user,
+      password,
+      host,
+      port,
+      name,
+      sslMode,
+    }:
+    "postgresql://${user}${
+      if password != null then ":${password}" else ""
+    }@${host}:${toString port}/${name}?sslmode=${sslMode}";
 in
 {
   options.dusk.dendrite = {
@@ -158,24 +172,51 @@ in
     };
 
     database = {
-      connectionString = mkOption {
+      user = mkOption {
         type = types.str;
-        default = "postgresql://username:password@hostname/dendrite?sslmode=disable";
-        description = "The connection string for the database.";
+        default = "dendrite";
+        description = "The database user.";
       };
-
+      password = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "The database password.";
+      };
+      host = mkOption {
+        type = types.str;
+        default = "localhost";
+        description = "The database host.";
+      };
+      port = mkOption {
+        type = types.int;
+        default = 5432;
+        description = "The database port.";
+      };
+      name = mkOption {
+        type = types.str;
+        default = "dendrite";
+        description = "The database name.";
+      };
+      sslMode = mkOption {
+        type = types.enum [
+          "disable"
+          "require"
+          "verify-ca"
+          "verify-full"
+        ];
+        default = "disable";
+        description = "The SSL mode for the database connection.";
+      };
       maxOpenConns = mkOption {
         type = types.int;
         default = 90;
         description = "The maximum number of open connections to the database.";
       };
-
       maxIdleConns = mkOption {
         type = types.int;
         default = 5;
         description = "The maximum number of connections in the idle connection pool.";
       };
-
       connMaxLifetime = mkOption {
         type = types.int;
         default = -1;
@@ -590,7 +631,16 @@ in
           };
 
           database = {
-            connection_string = cfg.database.connectionString;
+            connection_string = generateConnectionString {
+              inherit (cfg.database)
+                user
+                password
+                host
+                port
+                name
+                sslMode
+                ;
+            };
             max_open_conns = cfg.database.maxOpenConns;
             max_idle_conns = cfg.database.maxIdleConns;
             conn_max_lifetime = cfg.database.connMaxLifetime;
@@ -693,27 +743,47 @@ in
       postgresql = {
         enable = true;
         enableJIT = true;
+        enableTCPIP = false;
+
+        package = pkgs.postgresql_16_jit;
+
+        authentication = ''
+          local ${cfg.database.name} ${cfg.database.user} trust
+        '';
+
+        ensureDatabases = [
+          cfg.database.name
+        ];
+
+        initialScript = pkgs.writeText "initial-setup.sql" ''
+          CREATE USER ${cfg.database.user};
+          GRANT ALL PRIVILEGES ON DATABASE ${cfg.database.name} TO ${cfg.database.user};
+        '';
       };
     };
 
-    systemd.tmpfiles.rules = [
-      "d ${cfg.jetstream.storagePath} 0750 ${cfg.user} ${cfg.group} -"
-    ];
+    systemd = {
+      services.dendrite = {
+        serviceConfig = {
+          User = cfg.user;
+          Group = cfg.group;
+          WorkingDir = cfg.rootDir;
+        };
+      };
 
-    users.users.${cfg.user} = {
-      isSystemUser = true;
-      group = cfg.group;
-      home = cfg.rootDir;
-      createHome = true;
+      tmpfiles.rules = [
+        "d ${cfg.jetstream.storagePath} 0750 ${cfg.user} ${cfg.group} -"
+      ];
     };
 
-    users.groups.${cfg.group} = { };
+    users = {
+      groups.${cfg.group} = { };
 
-    systemd.services.dendrite = {
-      serviceConfig = {
-        User = cfg.user;
-        Group = cfg.group;
-        WorkingDir = cfg.rootDir;
+      users.${cfg.user} = {
+        isSystemUser = true;
+        group = cfg.group;
+        home = cfg.rootDir;
+        createHome = true;
       };
     };
   };
