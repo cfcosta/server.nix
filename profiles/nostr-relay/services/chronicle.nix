@@ -13,6 +13,8 @@ let
     types
     ;
 
+  cfg = config.dusk.chronicle;
+
   chronicle = pkgs.buildGo123Module {
     pname = "chronicle-unwrapped";
     version = inputs.chronicle.shortRev;
@@ -26,22 +28,22 @@ let
     buildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/chronicle \
-        --set DB_PATH "${config.services.chronicle.rootDir}/db" \
-        --set OWNER_PUBKEY "${config.services.chronicle.ownerPubkey}" \
-        --set RELAY_NAME "${config.services.chronicle.name}" \
-        --set RELAY_DESCRIPTION "${config.services.chronicle.description}" \
-        --set RELAY_URL "${config.services.chronicle.url}" \
-        --set RELAY_PORT "${toString config.services.chronicle.port}" \
-        --set RELAY_ICON "${config.services.chronicle.icon}" \
-        --set RELAY_CONTACT "${config.services.chronicle.contact}" \
-        --set REFRESH_INTERVAL "${toString config.services.chronicle.refreshInterval}" \
-        --set MIN_FOLLOWERS "${toString config.services.chronicle.minFollowers}" \
-        --set FETCH_SYNC "${if config.services.chronicle.fetchSync then "TRUE" else "FALSE"}"
+        --set DB_PATH "${cfg.rootDir}/db" \
+        --set OWNER_PUBKEY "${cfg.ownerPubkey}" \
+        --set RELAY_NAME "${cfg.name}" \
+        --set RELAY_DESCRIPTION "${cfg.description}" \
+        --set RELAY_URL "${cfg.url}" \
+        --set RELAY_PORT "${toString cfg.port}" \
+        --set RELAY_ICON "${cfg.icon}" \
+        --set RELAY_CONTACT "${cfg.contact}" \
+        --set REFRESH_INTERVAL "${toString cfg.refreshInterval}" \
+        --set MIN_FOLLOWERS "${toString cfg.minFollowers}" \
+        --set FETCH_SYNC "${if cfg.fetchSync then "TRUE" else "FALSE"}"
     '';
   };
 in
 {
-  options.services.chronicle = {
+  options.dusk.chronicle = {
     enable = mkEnableOption "Enable the Chronicle Nostr Relay";
 
     ownerPubkey = mkOption {
@@ -118,33 +120,39 @@ in
     };
   };
 
-  config = mkIf config.services.chronicle.enable {
-    systemd.services.chronicle = {
-      description = "Chronicle Nostr Relay";
+  config = mkIf cfg.enable {
+    systemd = {
+      services.chronicle = {
+        description = "Chronicle Nostr Relay";
 
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
+        wantedBy = [ "multi-user.target" ];
 
-      serviceConfig = {
-        ExecStart = "${service}/bin/chronicle";
-        Restart = "always";
-        User = config.services.chronicle.user;
-        Group = config.services.chronicle.group;
-        WorkingDirectory = config.services.chronicle.rootDir;
+        serviceConfig = {
+          ExecStart = "${service}/bin/chronicle";
+          Restart = "always";
+          User = cfg.user;
+          Group = cfg.group;
+          WorkingDirectory = cfg.rootDir;
+        };
       };
+
+      tmpfiles.rules = [
+        "d ${cfg.rootDir} 0750 ${cfg.user} ${cfg.group} -"
+      ];
     };
 
     users = {
-      users.${config.services.chronicle.user} = {
+      users.${cfg.user} = {
         isSystemUser = true;
-        group = config.services.chronicle.group;
-        home = config.services.chronicle.rootDir;
-        createHome = true;
+        group = cfg.group;
+        home = cfg.rootDir;
+        createHome = false;
       };
 
-      groups.${config.services.chronicle.group} = { };
+      groups.${cfg.group} = { };
     };
 
-    networking.firewall.allowedTCPPorts = [ config.services.chronicle.port ];
+    networking.firewall.allowedTCPPorts = [ cfg.port ];
   };
 }

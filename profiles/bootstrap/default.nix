@@ -11,7 +11,7 @@ in
 {
   imports = [
     inputs.disko.nixosModules.disko
-    ../common.nix
+    ../common
     ./targets
   ];
 

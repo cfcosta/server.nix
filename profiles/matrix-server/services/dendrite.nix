@@ -763,12 +763,10 @@ in
     };
 
     systemd = {
-      services.dendrite = {
-        serviceConfig = {
-          User = cfg.user;
-          Group = cfg.group;
-          WorkingDir = cfg.rootDir;
-        };
+      services.dendrite.serviceConfig = {
+        User = cfg.user;
+        Group = cfg.group;
+        WorkingDirectory = cfg.rootDir;
       };
 
       tmpfiles.rules = [
@@ -785,7 +783,7 @@ in
         isSystemUser = true;
         group = cfg.group;
         home = cfg.rootDir;
-        createHome = true;
+        createHome = false;
       };
     };
   };

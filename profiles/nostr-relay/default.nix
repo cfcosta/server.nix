@@ -1,10 +1,11 @@
 {
   imports = [
-    ../common.nix
-    ./chronicle.nix
+    ../common
+    ../common/nginx.nix
+    ./services/chronicle.nix
   ];
 
-  config.services.chronicle = {
+  config.dusk.chronicle = {
     enable = true;
 
     ownerPubkey = "xxx";

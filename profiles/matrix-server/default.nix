@@ -6,7 +6,9 @@
 }:
 {
   imports = [
-    ../common.nix
+    ../common
+    ../common/nginx.nix
+    ./services/nginx.nix
     ./services/postgresql.nix
     ./services/dendrite.nix
     inputs.agenix.nixosModules.default
