@@ -7,6 +7,7 @@
 {
   imports = [
     ../common.nix
+    ./services/postgresql.nix
     ./services/dendrite.nix
     inputs.agenix.nixosModules.default
   ];

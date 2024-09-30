@@ -760,27 +760,6 @@ in
           logging = cfg.logging;
         };
       };
-
-      postgresql = {
-        enable = true;
-        enableJIT = true;
-        enableTCPIP = false;
-
-        package = pkgs.postgresql_16_jit;
-
-        authentication = ''
-          local ${cfg.database.name} ${cfg.database.user} trust
-        '';
-
-        ensureDatabases = [
-          cfg.database.name
-        ];
-
-        initialScript = pkgs.writeText "initial-setup.sql" ''
-          CREATE USER ${cfg.database.user};
-          GRANT ALL PRIVILEGES ON DATABASE ${cfg.database.name} TO ${cfg.database.user};
-        '';
-      };
     };
 
     systemd = {
