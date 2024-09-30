@@ -1,6 +1,7 @@
 {
   target = "vultr";
   domain = "disconnect.capital";
+  domainOwner = "_@disconnect.capital";
 
   keys = {
     nodes.matrix-servers = [
