@@ -5,7 +5,7 @@
 
   keys = {
     nodes.matrix-servers = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFyMGkYxHwDlumYVAfapFzPfcctnd01O7pbQ36xqTVyg root@ghost"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDhoa8rEi6Md2kHC6+9hlLK/zS6PmDYfiV0WkI4Y9f2t root@ghost"
     ];
 
     users.cfcosta = [
@@ -16,5 +16,6 @@
   secrets = {
     "dendrite.pem" = ./secrets/dendrite.pem.age;
     "dendrite.secret" = ./secrets/dendrite.secret.age;
+    "dendrite-sliding-sync.secret" = ./secrets/dendrite-sliding-sync.secret.age;
   };
 }

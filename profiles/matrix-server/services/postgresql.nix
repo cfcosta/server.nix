@@ -25,11 +25,14 @@ in
 
       ensureDatabases = [
         cfg.database.name
+        "matrix-sliding-sync"
       ];
 
       initialScript = pkgs.writeText "initial-setup.sql" ''
         CREATE USER ${cfg.database.user};
         GRANT ALL PRIVILEGES ON DATABASE ${cfg.database.name} TO ${cfg.database.user};
+        CREATE USER matrix-sliding-sync;
+        GRANT ALL PRIVILEGES ON DATABASE matrix-sliding-sync TO matrix-sliding-sync;
       '';
     };
   };

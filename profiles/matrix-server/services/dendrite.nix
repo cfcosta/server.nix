@@ -4,7 +4,6 @@
   pkgs,
   ...
 }:
-
 let
   inherit (lib)
     mkEnableOption
@@ -743,6 +742,7 @@ in
 
           sync_api = {
             real_ip_header = cfg.syncAPI.realIpHeader;
+
             search = {
               enabled = cfg.syncAPI.search.enable;
               index_path = cfg.syncAPI.search.indexPath;
@@ -758,6 +758,28 @@ in
           };
 
           logging = cfg.logging;
+        };
+      };
+
+      matrix-sliding-sync = {
+        enable = true;
+        createDatabase = true;
+
+        environmentFile = config.age.secrets.dendrite-sliding-sync-secret.path;
+
+        settings = {
+          SYNCV3_SERVER = "https://${cfg.global.serverName}";
+          SYNCV3_DB = generateConnectionString {
+            inherit (cfg.database)
+              password
+              host
+              port
+              sslMode
+              ;
+
+            user = "matrix-sliding-sync";
+            name = "matrix-sliding-sync";
+          };
         };
       };
     };

@@ -27,12 +27,19 @@
         mode = "0600";
         owner = config.dusk.dendrite.user;
       };
+
+      dendrite-sliding-sync-secret = {
+        file = dusk.secrets."dendrite-sliding-sync.secret";
+        mode = "0600";
+        owner = config.dusk.dendrite.user;
+      };
     };
 
     dusk.dendrite = {
       enable = true;
 
       clientAPI.registrationSharedSecretPath = config.age.secrets.dendrite-shared-secret.path;
+      syncAPI.search.enable = true;
 
       global = {
         serverName = "matrix.${dusk.domain}";
