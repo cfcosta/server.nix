@@ -178,10 +178,10 @@ in
       ${cfg.username} = {
         extraGroups = [ "wheel" ];
         isNormalUser = true;
-        openssh.authorizedKeys.keys = flatten (attrValues dusk.keys);
+        openssh.authorizedKeys.keys = flatten (attrValues dusk.keys.users);
       };
 
-      root.openssh.authorizedKeys.keys = flatten (attrValues (dusk.keys));
+      root.openssh.authorizedKeys.keys = flatten (attrValues (dusk.keys.users));
     };
   };
 }

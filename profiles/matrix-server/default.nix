@@ -13,8 +13,17 @@
 
   config = {
     age.secrets = {
-      dendrite-pem.file = dusk.secrets."dendrite.pem";
-      dendrite-shared-secret.file = dusk.secrets."dendrite.secret";
+      dendrite-pem = {
+        file = dusk.secrets."dendrite.pem";
+        mode = "0600";
+        owner = config.dusk.dendrite.user;
+      };
+
+      dendrite-shared-secret = {
+        file = dusk.secrets."dendrite.secret";
+        mode = "0600";
+        owner = config.dusk.dendrite.user;
+      };
     };
 
     dusk.dendrite = {

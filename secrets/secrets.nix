@@ -1,9 +1,9 @@
 let
   config = import ../config.nix;
 
-  inherit (config.keys) cfcosta;
+  inherit (config.keys) users nodes;
 in
 {
-  "dendrite.pem.age".publicKeys = cfcosta;
-  "dendrite.secret.age".publicKeys = cfcosta;
+  "dendrite.pem.age".publicKeys = users.cfcosta ++ nodes.matrix-servers;
+  "dendrite.secret.age".publicKeys = users.cfcosta ++ nodes.matrix-servers;
 }
