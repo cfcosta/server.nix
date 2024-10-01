@@ -8,10 +8,11 @@
 let
   inherit (lib) mkIf;
 
-  cfg = config.dusk.dendrite;
+  dendrite = config.dusk.dendrite;
+  matrix-sliding-sync = config.dusk.matrix-sliding-sync;
 in
 {
-  config = mkIf cfg.enable {
+  config = mkIf (dendrite.enable || matrix-sliding-sync.enable) {
     services.postgresql = {
       enable = true;
       enableJIT = true;
@@ -20,19 +21,21 @@ in
       package = pkgs.postgresql_16_jit;
 
       authentication = ''
-        local ${cfg.database.name} ${cfg.database.user} trust
+        local ${dendrite.database.name} ${dendrite.database.user} trust
+        local ${matrix-sliding-sync.database.name} ${matrix-sliding-sync.database.user} trust
       '';
 
       ensureDatabases = [
-        cfg.database.name
-        "matrix-sliding-sync"
+        dendrite.database.name
+        matrix-sliding-sync.database.name
       ];
 
       initialScript = pkgs.writeText "initial-setup.sql" ''
-        CREATE USER ${cfg.database.user};
-        GRANT ALL PRIVILEGES ON DATABASE ${cfg.database.name} TO ${cfg.database.user};
-        CREATE USER matrix-sliding-sync;
-        GRANT ALL PRIVILEGES ON DATABASE matrix-sliding-sync TO matrix-sliding-sync;
+        CREATE USER ${dendrite.database.user};
+        GRANT ALL PRIVILEGES ON DATABASE ${dendrite.database.name} TO ${dendrite.database.user};
+
+        CREATE USER ${matrix-sliding-sync.database.user};
+        GRANT ALL PRIVILEGES ON DATABASE ${matrix-sliding-sync.database.name} TO ${matrix-sliding-sync.database.user};
       '';
     };
   };

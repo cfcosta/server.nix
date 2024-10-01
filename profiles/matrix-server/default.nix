@@ -11,6 +11,7 @@
     ./services/nginx.nix
     ./services/postgresql.nix
     ./services/dendrite.nix
+    ./services/matrix-sliding-sync.nix
     inputs.agenix.nixosModules.default
   ];
 
@@ -31,19 +32,30 @@
       dendrite-sliding-sync-secret = {
         file = dusk.secrets."dendrite-sliding-sync.secret";
         mode = "0600";
-        owner = config.dusk.dendrite.user;
+        owner = config.dusk.matrix-sliding-sync.user;
+        path = "/etc/matrix-sliding-sync/env.sh";
       };
     };
 
-    dusk.dendrite = {
-      enable = true;
+    dusk = {
+      dendrite = {
+        enable = true;
 
-      clientAPI.registrationSharedSecretPath = config.age.secrets.dendrite-shared-secret.path;
-      syncAPI.search.enable = true;
+        clientAPI.registrationSharedSecretPath = config.age.secrets.dendrite-shared-secret.path;
+        syncAPI.search.enable = true;
 
-      global = {
-        serverName = "matrix.${dusk.domain}";
-        privateKey = config.age.secrets.dendrite-pem.path;
+        global = {
+          serverName = "matrix.${dusk.domain}";
+          privateKey = config.age.secrets.dendrite-pem.path;
+          presence.enableInbound = true;
+          serverNotices.enable = true;
+        };
+      };
+
+      matrix-sliding-sync = {
+        enable = true;
+        server = "matrix.${dusk.domain}";
+        environmentFile = config.age.secrets.dendrite-sliding-sync-secret.path;
       };
     };
   };

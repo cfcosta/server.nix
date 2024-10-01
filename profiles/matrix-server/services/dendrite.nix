@@ -22,6 +22,7 @@ let
       port,
       name,
       sslMode,
+      ...
     }:
     "postgresql://${user}${
       if password != null then ":${password}" else ""
@@ -651,16 +652,7 @@ in
           };
 
           database = {
-            connection_string = generateConnectionString {
-              inherit (cfg.database)
-                user
-                password
-                host
-                port
-                name
-                sslMode
-                ;
-            };
+            connection_string = generateConnectionString cfg.database;
             max_open_conns = cfg.database.maxOpenConns;
             max_idle_conns = cfg.database.maxIdleConns;
             conn_max_lifetime = cfg.database.connMaxLifetime;
@@ -758,28 +750,6 @@ in
           };
 
           logging = cfg.logging;
-        };
-      };
-
-      matrix-sliding-sync = {
-        enable = true;
-        createDatabase = true;
-
-        environmentFile = config.age.secrets.dendrite-sliding-sync-secret.path;
-
-        settings = {
-          SYNCV3_SERVER = "https://${cfg.global.serverName}";
-          SYNCV3_DB = generateConnectionString {
-            inherit (cfg.database)
-              password
-              host
-              port
-              sslMode
-              ;
-
-            user = "matrix-sliding-sync";
-            name = "matrix-sliding-sync";
-          };
         };
       };
     };
