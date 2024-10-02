@@ -752,6 +752,17 @@ in
           logging = cfg.logging;
         };
       };
+
+      postgresql = {
+        ensureDatabases = [ cfg.database.name ];
+
+        ensureUsers = [
+          {
+            name = cfg.user;
+            ensureDBOwnership = true;
+          }
+        ];
+      };
     };
 
     systemd = {

@@ -121,15 +121,28 @@ in
   };
 
   config = mkIf cfg.enable {
-    services.matrix-sliding-sync = {
-      inherit (cfg) environmentFile;
+    services = {
+      matrix-sliding-sync = {
+        inherit (cfg) environmentFile;
 
-      enable = true;
-      createDatabase = true;
+        enable = true;
+        createDatabase = true;
 
-      settings = {
-        SYNCV3_SERVER = "https://${cfg.server}";
-        SYNCV3_DB = generateConnectionString cfg.database;
+        settings = {
+          SYNCV3_SERVER = "https://${cfg.server}";
+          SYNCV3_DB = generateConnectionString cfg.database;
+        };
+      };
+
+      postgresql = {
+        ensureDatabases = [ cfg.database.name ];
+
+        ensureUsers = [
+          {
+            name = cfg.user;
+            ensureDBOwnership = true;
+          }
+        ];
       };
     };
 
