@@ -15,6 +15,8 @@
       recommendedProxySettings = true;
       recommendedTlsSettings = true;
 
+      serverNamesHashBucketSize = 128;
+
       virtualHosts = {
         ${dusk.domain} = {
           enableACME = true;

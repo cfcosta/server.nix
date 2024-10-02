@@ -11,6 +11,7 @@ let
     mkEnableOption
     mkIf
     mkOption
+    optionalString
     types
     ;
 
@@ -66,6 +67,12 @@ in
       description = "The URL of the Nostr Relay.";
       type = types.str;
       default = "nostr.${dusk.domain}";
+    };
+
+    torUrl = mkOption {
+      description = "The URL of the Nostr Relay in the Onion Network.";
+      type = types.str;
+      default = "nostr.${dusk.tor.domain}";
     };
 
     port = mkOption {
@@ -126,15 +133,29 @@ in
 
     services = {
       nginx = {
-        enable = true;
+        virtualHosts = {
+          ${cfg.url} = {
+            enableACME = true;
+            forceSSL = true;
 
-        virtualHosts.${cfg.url} = {
-          enableACME = true;
-          forceSSL = true;
+            locations."/" = {
+              extraConfig = optionalString config.services.tor.enable ''
+                add_header Onion-Location http://${cfg.torUrl}$request_uri;
+              '';
 
-          locations."/" = {
-            proxyPass = "http://127.0.0.1:${toString cfg.port}";
-            proxyWebsockets = true;
+              proxyPass = "http://127.0.0.1:${toString cfg.port}";
+              proxyWebsockets = true;
+            };
+          };
+
+          ${cfg.torUrl} = {
+            enableACME = false;
+            forceSSL = false;
+
+            locations."/" = {
+              proxyPass = "http://127.0.0.1:${toString cfg.port}";
+              proxyWebsockets = true;
+            };
           };
         };
       };

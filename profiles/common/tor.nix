@@ -14,7 +14,7 @@ in
   config = mkIf cfg.enable {
     services = {
       nginx.virtualHosts.${dusk.domain}.extraConfig = ''
-        add_header Onion-Location http://trspv4gsa5irkrflbskyzwfo6vsj5h6i6zaelgc52hxmuoz6w6xpzbid.onion$request_uri;
+        add_header Onion-Location http://${dusk.tor.domain}$request_uri;
       '';
 
       tor = {
