@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 let
@@ -619,9 +618,7 @@ in
       dendrite = {
         enable = true;
 
-        environmentFile = pkgs.writeText "dendrite-env.sh" ''
-          export DENDRITE_REGISTRATION_SECRET="$(cat ${cfg.clientAPI.registrationSharedSecretPath})"
-        '';
+        environmentFile = cfg.clientAPI.registrationSharedSecretPath;
 
         settings = {
           global = {

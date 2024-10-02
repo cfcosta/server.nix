@@ -45,16 +45,15 @@
         syncAPI.search.enable = true;
 
         global = {
-          serverName = "matrix.${dusk.domain}";
+          serverName = dusk.domain;
           privateKey = config.age.secrets.dendrite-pem.path;
           presence.enableInbound = true;
-          serverNotices.enable = true;
         };
       };
 
       matrix-sliding-sync = {
         enable = true;
-        server = "matrix.${dusk.domain}";
+        server = dusk.domain;
         environmentFile = config.age.secrets.dendrite-sliding-sync-secret.path;
       };
     };
