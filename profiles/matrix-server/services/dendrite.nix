@@ -150,6 +150,7 @@ in
 
       serverNotices = {
         enable = mkEnableOption "server notices";
+
         localPart = mkOption {
           type = types.str;
           default = "_server";
@@ -253,16 +254,19 @@ in
         default = [ ];
         description = "A list of NATS Server addresses to connect to.";
       };
+
       enableTLSValidation = mkOption {
         type = types.bool;
-        default = false;
-        description = "Disable the validation of TLS certificates of NATS.";
+        default = true;
+        description = "Enables the validation of TLS certificates of NATS.";
       };
+
       storagePath = mkOption {
         type = types.str;
         default = "${cfg.rootDir}/jetstream";
         description = "Persistent directory to store JetStream streams in.";
       };
+
       topicPrefix = mkOption {
         type = types.str;
         default = "Dendrite";
@@ -271,7 +275,12 @@ in
     };
 
     metrics = {
-      enable = mkEnableOption "Prometheus metric collection";
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Prometheus metric collection";
+      };
+
       basicAuth = {
         username = mkOption {
           type = types.str;
@@ -287,12 +296,18 @@ in
     };
 
     dnsCache = {
-      enable = mkEnableOption "the optional DNS cache";
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        description = "the optional DNS cache";
+      };
+
       cacheSize = mkOption {
         type = types.int;
         default = 256;
         description = "The size of the DNS cache.";
       };
+
       cacheLifetime = mkOption {
         type = types.str;
         default = "5m";
@@ -301,9 +316,15 @@ in
     };
 
     appServiceAPI = {
-      enableTLSValidation = mkEnableOption "disabling the validation of TLS certificates of appservices";
+      enableTLSValidation = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Enables the validation of TLS certificates of appservices";
+      };
+
       legacyAuth = mkEnableOption "sending the access_token query parameter with appservice requests in addition to the Authorization header";
       legacyPaths = mkEnableOption "using the legacy unprefixed paths for appservice requests";
+
       configFiles = mkOption {
         type = types.listOf types.str;
         default = [ ];
@@ -402,8 +423,17 @@ in
         description = "How many times to retry sending a failed transaction to a specific server.";
       };
 
-      enableTLSValidation = mkEnableOption "disabling the validation of TLS certificates of remote federated homeservers";
-      disableHTTPKeepalives = mkEnableOption "disabling HTTP keepalives, which also prevents connection reuse";
+      enableTLSValidation = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Enables the validation of TLS certificates of remote federated homeservers";
+      };
+
+      enableHTTPKeepalives = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Enable HTTP keepalives and connection reuse";
+      };
 
       keyPerspectives = mkOption {
         type = types.listOf (
@@ -529,7 +559,11 @@ in
       };
 
       search = {
-        enable = mkEnableOption "search functionality";
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "search functionality";
+        };
 
         indexPath = mkOption {
           type = types.str;
@@ -716,7 +750,7 @@ in
           federation_api = {
             send_max_retries = cfg.federationAPI.sendMaxRetries;
             disable_tls_validation = !cfg.federationAPI.enableTLSValidation;
-            disable_http_keepalives = cfg.federationAPI.disableHTTPKeepalives;
+            disable_http_keepalives = !cfg.federationAPI.enableHTTPKeepalives;
             key_perspectives = cfg.federationAPI.keyPerspectives;
             prefer_direct_fetch = cfg.federationAPI.preferDirectFetch;
             database.connection_string = generateConnectionString cfg.database;

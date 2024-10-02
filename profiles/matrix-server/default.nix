@@ -44,7 +44,7 @@
         enable = true;
 
         global = {
-          serverName = dusk.domain;
+          serverName = "matrix.${dusk.domain}";
           privateKey = config.age.secrets.dendrite-pem.path;
 
           presence.enableInbound = true;
