@@ -242,7 +242,7 @@ in
         default = [ ];
         description = "A list of NATS Server addresses to connect to.";
       };
-      disableTLSValidation = mkOption {
+      enableTLSValidation = mkOption {
         type = types.bool;
         default = false;
         description = "Disable the validation of TLS certificates of NATS.";
@@ -290,7 +290,7 @@ in
     };
 
     appServiceAPI = {
-      disableTLSValidation = mkEnableOption "disabling the validation of TLS certificates of appservices";
+      enableTLSValidation = mkEnableOption "disabling the validation of TLS certificates of appservices";
       legacyAuth = mkEnableOption "sending the access_token query parameter with appservice requests in addition to the Authorization header";
       legacyPaths = mkEnableOption "using the legacy unprefixed paths for appservice requests";
       configFiles = mkOption {
@@ -400,7 +400,7 @@ in
         description = "How many times to retry sending a failed transaction to a specific server.";
       };
 
-      disableTLSValidation = mkEnableOption "disabling the validation of TLS certificates of remote federated homeservers";
+      enableTLSValidation = mkEnableOption "disabling the validation of TLS certificates of remote federated homeservers";
       disableHTTPKeepalives = mkEnableOption "disabling HTTP keepalives, which also prevents connection reuse";
 
       keyPerspectives = mkOption {
@@ -662,7 +662,7 @@ in
 
           jetstream = {
             addresses = cfg.jetstream.addresses;
-            disable_tls_validation = cfg.jetstream.disableTLSValidation;
+            disable_tls_validation = !cfg.jetstream.enableTLSValidation;
             storage_path = cfg.jetstream.storagePath;
             topic_prefix = cfg.jetstream.topicPrefix;
           };
@@ -682,7 +682,7 @@ in
           };
 
           app_service_api = {
-            disable_tls_validation = cfg.appServiceAPI.disableTLSValidation;
+            disable_tls_validation = !cfg.appServiceAPI.enableTLSValidation;
             legacy_auth = cfg.appServiceAPI.legacyAuth;
             legacy_paths = cfg.appServiceAPI.legacyPaths;
             config_files = cfg.appServiceAPI.configFiles;
@@ -713,7 +713,7 @@ in
 
           federation_api = {
             send_max_retries = cfg.federationAPI.sendMaxRetries;
-            disable_tls_validation = cfg.federationAPI.disableTLSValidation;
+            disable_tls_validation = !cfg.federationAPI.enableTLSValidation;
             disable_http_keepalives = cfg.federationAPI.disableHTTPKeepalives;
             key_perspectives = cfg.federationAPI.keyPerspectives;
             prefer_direct_fetch = cfg.federationAPI.preferDirectFetch;
