@@ -21,6 +21,7 @@
         file = dusk.secrets."dendrite.pem";
         mode = "0600";
         owner = config.dusk.dendrite.user;
+        path = "/etc/dendrite/matrix_key.pem";
       };
 
       dendrite-shared-secret = {

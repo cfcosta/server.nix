@@ -686,6 +686,7 @@ in
             legacy_auth = cfg.appServiceAPI.legacyAuth;
             legacy_paths = cfg.appServiceAPI.legacyPaths;
             config_files = cfg.appServiceAPI.configFiles;
+            database.connection_string = generateConnectionString cfg.database;
           };
 
           client_api = {
@@ -717,6 +718,7 @@ in
             disable_http_keepalives = cfg.federationAPI.disableHTTPKeepalives;
             key_perspectives = cfg.federationAPI.keyPerspectives;
             prefer_direct_fetch = cfg.federationAPI.preferDirectFetch;
+            database.connection_string = generateConnectionString cfg.database;
           };
 
           media_api = {
@@ -747,6 +749,12 @@ in
           };
 
           logging = cfg.logging;
+
+          key_server.database.connection_string = generateConnectionString cfg.database;
+          mscs.database.connection_string = generateConnectionString cfg.database;
+          relay_api.database.connection_string = generateConnectionString cfg.database;
+          sync_api.database.connection_string = generateConnectionString cfg.database;
+          user_api.database.connection_string = generateConnectionString cfg.database;
         };
       };
 
