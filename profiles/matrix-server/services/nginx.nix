@@ -17,10 +17,20 @@ in
       enableACME = true;
       forceSSL = true;
 
+      extraConfig = ''
+        client_max_body_size 30M;
+
+        proxy_read_timeout 600;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+      '';
+
       locations = {
         "/.well-known/matrix/server".extraConfig = ''
           default_type application/json;
           return 200 '{ "m.server": "${cfg.global.serverName}:443" }';
+          add_header "Access-Control-Allow-Origin" *;
         '';
 
         "/.well-known/matrix/client".extraConfig = ''
@@ -29,35 +39,15 @@ in
           add_header "Access-Control-Allow-Origin" *;
         '';
 
-        "/_matrix" = {
-          proxyPass = "http://127.0.0.1:8008";
+        "/_matrix".proxyPass = "http://127.0.0.1:${toString config.services.dendrite.httpPort}";
+        "/_dendrite".proxyPass = "http://127.0.0.1:${toString config.services.dendrite.httpPort}";
+        # for remote admin access
+        "/_synapse".proxyPass = "http://127.0.0.1:${toString config.services.dendrite.httpPort}";
+      };
 
-          extraConfig = ''
-            proxy_set_header X-Forwarded-For $remote_addr;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_set_header Host $host;
-          '';
-        };
-
-        "~ ^/(client/|_matrix/client/unstable/org.matrix.msc3575/sync)" = {
-          proxyPass = "http://127.0.0.1:8009";
-
-          extraConfig = ''
-            proxy_set_header X-Forwarded-For $remote_addr;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_set_header Host $host;
-          '';
-        };
-
-        "~ ^(\/_matrix|\/_synapse\/client)" = {
-          proxyPass = "http://127.0.0.1:8008";
-
-          extraConfig = ''
-            proxy_set_header X-Forwarded-For $remote_addr;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_set_header Host $host;
-          '';
-        };
+      # sliding sync
+      locations."~ ^/(client/|_matrix/client/unstable/org.matrix.msc3575/sync)" = {
+        proxyPass = "http://${config.services.matrix-sliding-sync.settings.SYNCV3_BINDADDR}";
       };
     };
   };

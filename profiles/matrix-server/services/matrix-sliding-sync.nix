@@ -38,6 +38,18 @@ in
       description = "The server name for the Matrix server.";
     };
 
+    address = mkOption {
+      type = types.str;
+      default = "127.0.0.1";
+      description = "The address on which the Matrix Sliding Sync service should listen.";
+    };
+
+    port = mkOption {
+      type = types.port;
+      default = 8009;
+      description = "The port on which the Matrix Sliding Sync service should listen.";
+    };
+
     environmentFile = mkOption {
       type = types.path;
       description = "Path to the environment file containing secrets.";
@@ -131,6 +143,7 @@ in
         settings = {
           SYNCV3_SERVER = "https://${cfg.server}";
           SYNCV3_DB = generateConnectionString cfg.database;
+          SYNCV3_BINDADDR = "${cfg.address}:${toString cfg.port}";
         };
       };
 

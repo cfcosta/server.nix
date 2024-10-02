@@ -179,26 +179,31 @@ in
         default = "dendrite";
         description = "The database user.";
       };
+
       password = mkOption {
         type = types.nullOr types.str;
         default = null;
         description = "The database password.";
       };
+
       host = mkOption {
         type = types.str;
         default = "localhost";
         description = "The database host.";
       };
+
       port = mkOption {
         type = types.int;
         default = 5432;
         description = "The database port.";
       };
+
       name = mkOption {
         type = types.str;
         default = "dendrite";
         description = "The database name.";
       };
+
       sslMode = mkOption {
         type = types.enum [
           "disable"
@@ -209,16 +214,19 @@ in
         default = "disable";
         description = "The SSL mode for the database connection.";
       };
+
       maxOpenConns = mkOption {
         type = types.int;
         default = 90;
         description = "The maximum number of open connections to the database.";
       };
+
       maxIdleConns = mkOption {
         type = types.int;
         default = 5;
         description = "The maximum number of connections in the idle connection pool.";
       };
+
       connMaxLifetime = mkOption {
         type = types.int;
         default = -1;
@@ -507,12 +515,10 @@ in
       };
     };
 
-    mscs = {
-      mscs = mkOption {
-        type = types.listOf types.str;
-        default = [ ];
-        description = "List of experimental MSCs to enable on this homeserver.";
-      };
+    mscs.mscs = mkOption {
+      type = types.listOf types.str;
+      default = [ "msc2836" ]; # Enable threads
+      description = "List of experimental MSCs to enable on this homeserver.";
     };
 
     syncAPI = {
