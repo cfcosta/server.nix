@@ -118,35 +118,14 @@
     // {
       checks = mapAttrs (_: lib: lib.deployChecks self.deploy) deploy-rs.lib;
 
-      deploy.nodes = {
-        nostr-relay = {
-          hostname = "relay";
-          fastConnection = true;
+      deploy.nodes.server = {
+        hostname = "server";
+        fastConnection = true;
 
-          profilesOrder = [ "nostr-relay" ];
-
-          profiles = {
-            nostr-relay = {
-              user = "root";
-              sshUser = "root";
-              path = activate.nixos self.nixosConfigurations.nostr-relay;
-            };
-          };
-        };
-
-        matrix-server = {
-          hostname = "matrix";
-          fastConnection = true;
-
-          profilesOrder = [ "matrix-server" ];
-
-          profiles = {
-            matrix-server = {
-              user = "root";
-              sshUser = "root";
-              path = activate.nixos self.nixosConfigurations.matrix-server;
-            };
-          };
+        profiles.disconnect-server = {
+          user = "root";
+          sshUser = "root";
+          path = activate.nixos self.nixosConfigurations.server;
         };
       };
 
@@ -164,25 +143,15 @@
           };
         };
 
-        nostr-relay = nixpkgs.lib.nixosSystem {
+        server = nixpkgs.lib.nixosSystem {
           pkgs = import nixpkgs {
             system = "x86_64-linux";
           };
 
-          modules = [ ./profiles/nostr-relay ];
-
-          specialArgs = {
-            inherit inputs;
-            dusk = import ./config.nix;
-          };
-        };
-
-        matrix-server = nixpkgs.lib.nixosSystem {
-          pkgs = import nixpkgs {
-            system = "x86_64-linux";
-          };
-
-          modules = [ ./profiles/matrix-server ];
+          modules = [
+            ./profiles/matrix-server
+            ./profiles/nostr-relay
+          ];
 
           specialArgs = {
             inherit inputs;

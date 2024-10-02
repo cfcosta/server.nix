@@ -1,5 +1,6 @@
 {
   config,
+  dusk,
   inputs,
   lib,
   pkgs,
@@ -64,7 +65,7 @@ in
     url = mkOption {
       description = "The URL of the Nostr Relay.";
       type = types.str;
-      default = "localhost";
+      default = "nostr.${dusk.domain}";
     };
 
     port = mkOption {
@@ -121,6 +122,22 @@ in
   };
 
   config = mkIf cfg.enable {
+    security.acme.certs.${cfg.url}.email = dusk.domainOwner;
+
+    services.nginx = {
+      enable = true;
+
+      virtualHosts.${cfg.url} = {
+        enableACME = true;
+        forceSSL = true;
+
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString cfg.port}";
+          proxyWebsockets = true;
+        };
+      };
+    };
+
     systemd = {
       services.chronicle = {
         description = "Chronicle Nostr Relay";
@@ -152,7 +169,5 @@ in
 
       groups.${cfg.group} = { };
     };
-
-    networking.firewall.allowedTCPPorts = [ cfg.port ];
   };
 }
