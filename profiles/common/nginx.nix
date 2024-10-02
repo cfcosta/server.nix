@@ -10,6 +10,11 @@
     services.nginx = {
       enable = true;
 
+      recommendedGzipSettings = true;
+      recommendedOptimisation = true;
+      recommendedProxySettings = true;
+      recommendedTlsSettings = true;
+
       virtualHosts.${dusk.domain} = {
         enableACME = true;
         forceSSL = true;
