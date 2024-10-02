@@ -8,6 +8,7 @@
   imports = [
     ../common
     ../common/nginx.nix
+    ../common/tor.nix
     ./services/nginx.nix
     ./services/postgresql.nix
     ./services/dendrite.nix
@@ -59,6 +60,8 @@
         server = dusk.domain;
         environmentFile = config.age.secrets.dendrite-sliding-sync-secret.path;
       };
+
+      tor.enable = true;
     };
   };
 }

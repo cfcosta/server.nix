@@ -124,16 +124,18 @@ in
   config = mkIf cfg.enable {
     security.acme.certs.${cfg.url}.email = dusk.domainOwner;
 
-    services.nginx = {
-      enable = true;
+    services = {
+      nginx = {
+        enable = true;
 
-      virtualHosts.${cfg.url} = {
-        enableACME = true;
-        forceSSL = true;
+        virtualHosts.${cfg.url} = {
+          enableACME = true;
+          forceSSL = true;
 
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString cfg.port}";
-          proxyWebsockets = true;
+          locations."/" = {
+            proxyPass = "http://127.0.0.1:${toString cfg.port}";
+            proxyWebsockets = true;
+          };
         };
       };
     };

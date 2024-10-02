@@ -39,15 +39,15 @@ in
           add_header "Access-Control-Allow-Origin" *;
         '';
 
+        # sliding sync
+        "~ ^/(client/|_matrix/client/unstable/org.matrix.msc3575/sync)" = {
+          proxyPass = "http://${config.services.matrix-sliding-sync.settings.SYNCV3_BINDADDR}";
+        };
+
         "/_matrix".proxyPass = "http://127.0.0.1:${toString config.services.dendrite.httpPort}";
         "/_dendrite".proxyPass = "http://127.0.0.1:${toString config.services.dendrite.httpPort}";
         # for remote admin access
         "/_synapse".proxyPass = "http://127.0.0.1:${toString config.services.dendrite.httpPort}";
-      };
-
-      # sliding sync
-      locations."~ ^/(client/|_matrix/client/unstable/org.matrix.msc3575/sync)" = {
-        proxyPass = "http://${config.services.matrix-sliding-sync.settings.SYNCV3_BINDADDR}";
       };
     };
   };
