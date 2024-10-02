@@ -6,7 +6,7 @@
 }:
 
 let
-  inherit (lib) mkIf;
+  inherit (lib) mkIf mkOverride;
 
   dendrite = config.dusk.dendrite;
   matrix-sliding-sync = config.dusk.matrix-sliding-sync;
@@ -16,12 +16,15 @@ in
     services.postgresql = {
       enable = true;
       enableJIT = true;
-      enableTCPIP = false;
+      enableTCPIP = true;
 
       package = pkgs.postgresql_16_jit;
 
-      authentication = ''
+      authentication = mkOverride 10 ''
         local all all trust
+
+        host  all all 127.0.0.1/32 trust
+        host  all all ::1/128 trust
       '';
     };
   };
