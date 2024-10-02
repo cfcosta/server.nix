@@ -42,18 +42,20 @@
       dendrite = {
         enable = true;
 
-        clientAPI.registrationSharedSecretPath = config.age.secrets.dendrite-shared-secret.path;
-        syncAPI.search.enable = true;
-
         global = {
           serverName = dusk.domain;
           privateKey = config.age.secrets.dendrite-pem.path;
+
           presence.enableInbound = true;
         };
+
+        clientAPI.registrationSharedSecretPath = config.age.secrets.dendrite-shared-secret.path;
+        syncAPI.search.enable = true;
       };
 
       matrix-sliding-sync = {
         enable = true;
+
         server = dusk.domain;
         environmentFile = config.age.secrets.dendrite-sliding-sync-secret.path;
       };

@@ -1,8 +1,4 @@
-{
-  config,
-  lib,
-  ...
-}:
+{ config, lib, ... }:
 let
   inherit (lib)
     mkEnableOption
@@ -10,7 +6,6 @@ let
     mkOption
     types
     ;
-
   cfg = config.dusk.dendrite;
 
   generateConnectionString =
@@ -34,31 +29,33 @@ in
     user = mkOption {
       type = types.str;
       default = "dendrite";
-      description = "The user to run Dendrite as.";
+      description = "The system user under which the Dendrite service will run.";
     };
 
     group = mkOption {
       type = types.str;
       default = "dendrite";
-      description = "The group to run Dendrite as.";
+      description = "The system group under which the Dendrite service will run.";
     };
 
     rootDir = mkOption {
       type = types.str;
       default = "/var/lib/dendrite";
-      description = "The root directory for Dendrite to run inside.";
+      description = "The root directory for Dendrite's data storage and configuration files.";
     };
 
     global = {
       serverName = mkOption {
         type = types.str;
-        default = "localhost";
-        description = "The domain name of this homeserver.";
+        description = "The public-facing domain name of this homeserver.";
       };
 
       privateKey = mkOption {
         type = types.str;
-        description = "The path to the signing private key file, used to sign requests and events.";
+        description = ''
+          The path to the signing private key file, used to sign requests and events.
+          This file should be kept secret and have restricted permissions.
+        '';
       };
 
       oldPrivateKeys = mkOption {
@@ -67,51 +64,54 @@ in
             options = {
               privateKey = mkOption {
                 type = types.str;
-                description = "Path to the old private key file.";
+                description = "Path to the old private key file. This should be kept secret.";
               };
 
               publicKey = mkOption {
                 type = types.str;
-                description = "The public key in base64 format.";
+                description = "The corresponding public key in base64 format.";
               };
 
               keyId = mkOption {
                 type = types.str;
-                description = "The key ID.";
+                description = "A unique identifier for this key pair.";
               };
 
               expiredAt = mkOption {
                 type = types.int;
-                description = "Expiry timestamp in millisecond precision.";
+                description = "Expiry timestamp in milliseconds since the Unix epoch.";
               };
             };
           }
         );
         default = [ ];
-        description = "List of old signing keys that were formerly in use on this domain name.";
+        description = "List of old signing key pairs that were formerly in use on this domain name. Used for verifying old signatures.";
       };
 
       keyValidityPeriod = mkOption {
         type = types.str;
         default = "168h0m0s";
-        description = "How long a remote server can cache our server signing key before requesting it again.";
+        description = ''
+          The duration for which a remote server can cache our server signing key before requesting it again.
+          Format: a string representing a time duration (e.g., "168h" for 7 days).
+        '';
       };
 
       wellKnownServerName = mkOption {
-        type = types.str;
-        default = "";
+        type = types.nullOr types.str;
+        default = null;
         description = "The server name to delegate server-server communications to, with optional port.";
       };
 
       wellKnownClientName = mkOption {
-        type = types.str;
-        default = "";
+        type = types.nullOr types.str;
+        default = null;
         description = "The base URL to delegate client-server communications to.";
       };
 
       wellKnownSlidingSyncProxy = mkOption {
-        type = types.str;
-        default = "";
+        type = types.nullOr types.str;
+        default = null;
         description = "The server name to delegate sliding sync communications to, with optional port.";
       };
 
@@ -124,10 +124,13 @@ in
         description = "Lists of domains that the server will trust as identity servers.";
       };
 
-      disableFederation = mkOption {
+      enableFederation = mkOption {
         type = types.bool;
-        default = false;
-        description = "Disables federation. Dendrite will not be able to communicate with other servers in the Matrix federation.";
+        default = true;
+        description = ''
+          Whether to enable federation on this server.
+          Federation allows communication with other Matrix servers.
+        '';
       };
 
       presence = {
@@ -136,12 +139,12 @@ in
       };
 
       reportStats = {
-        enable = mkEnableOption "phone-home statistics reporting";
+        enable = mkEnableOption "anonymous usage statistics reporting to the Matrix.org team";
 
         endpoint = mkOption {
           type = types.str;
           default = "https://panopticon.matrix.org/push";
-          description = "The endpoint to send statistics to.";
+          description = "The URL endpoint to which anonymous usage statistics will be sent.";
         };
       };
 
@@ -301,17 +304,8 @@ in
     };
 
     clientAPI = {
-      registrationDisabled = mkOption {
-        type = types.bool;
-        default = true;
-        description = "Prevents new users from being able to register on this homeserver.";
-      };
-
-      guestsDisabled = mkOption {
-        type = types.bool;
-        default = true;
-        description = "Prevents new guest accounts from being created.";
-      };
+      enableRegistration = mkEnableOption "Allows new users to register to this homeserver.";
+      enableGuests = mkEnableOption "Allows guest accounts to be created";
 
       registrationSharedSecretPath = mkOption {
         type = types.str;
@@ -522,9 +516,9 @@ in
     };
 
     syncAPI = {
-      realIpHeader = mkOption {
+      realIPHeader = mkOption {
         type = types.str;
-        default = "";
+        default = "X-Forwarded-For";
         description = "The HTTP header to inspect to find the real remote IP address of the client.";
       };
 
@@ -630,7 +624,7 @@ in
             well_known_client_name = cfg.global.wellKnownClientName;
             well_known_sliding_sync_proxy = cfg.global.wellKnownSlidingSyncProxy;
             trusted_third_party_id_servers = cfg.global.trustedThirdPartyIdServers;
-            disable_federation = cfg.global.disableFederation;
+            disable_federation = !cfg.global.enableFederation;
             presence = {
               enable_inbound = cfg.global.presence.enableInbound;
               enable_outbound = cfg.global.presence.enableOutbound;
@@ -669,6 +663,7 @@ in
 
           metrics = {
             enabled = cfg.metrics.enable;
+
             basic_auth = {
               username = cfg.metrics.basicAuth.username;
               password = cfg.metrics.basicAuth.password;
@@ -690,8 +685,8 @@ in
           };
 
           client_api = {
-            registration_disabled = cfg.clientAPI.registrationDisabled;
-            guests_disabled = cfg.clientAPI.guestsDisabled;
+            registration_disabled = !cfg.clientAPI.enableRegistration;
+            guests_disabled = !cfg.clientAPI.enableGuests;
             registration_shared_secret = "$DENDRITE_REGISTRATION_SECRET";
             enable_registration_captcha = cfg.clientAPI.enableRegistrationCaptcha;
             recaptcha_public_key = cfg.clientAPI.recaptchaPublicKey;
@@ -732,7 +727,7 @@ in
           mscs.mscs = cfg.mscs.mscs;
 
           sync_api = {
-            real_ip_header = cfg.syncAPI.realIpHeader;
+            real_ip_header = cfg.syncAPI.realIPHeader;
 
             search = {
               enabled = cfg.syncAPI.search.enable;
