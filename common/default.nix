@@ -17,8 +17,7 @@ let
 in
 {
   imports = [
-    ./nginx.nix
-    ./tor.nix
+    ./services
     ./user.nix
   ];
 

@@ -11,7 +11,7 @@ in
   agenix = inputs.agenix.packages.${system}.default;
 
   bootstrap = pkgs.writeShellApplication {
-    name = "bootstrap";
+    name = "server-bootstrap";
 
     runtimeInputs = [
       nixos-anywhere.packages.${system}.default
@@ -24,7 +24,7 @@ in
   };
 
   deploy = pkgs.writeShellApplication {
-    name = "deploy";
+    name = "server-deploy";
 
     text = ''
       ${readFile ./lib.sh}
