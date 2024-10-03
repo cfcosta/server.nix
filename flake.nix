@@ -84,79 +84,72 @@
       inherit (deploy-rs.lib.x86_64-linux) activate;
       dusk = import ./config.nix;
 
-      perSystem = flake-utils.lib.eachDefaultSystem (
-        system:
-        let
-          pkgs = import nixpkgs { inherit system; };
-
-          inherit (pkgs) mkShell;
-
-          pre-commit-check = pre-commit-hooks.lib.${system}.run {
-            src = ./.;
-
-            hooks = {
-              deadnix.enable = true;
-              nixfmt-rfc-style.enable = true;
-
-              shellcheck.enable = true;
-              shfmt.enable = true;
-            };
-          };
-        in
+      nixos =
         {
-          checks = {
-            inherit pre-commit-check;
+          system ? "x86_64-linux",
+          profiles ? [ ],
+        }:
+        nixpkgs.lib.nixosSystem {
+          pkgs = import nixpkgs {
+            inherit system;
           };
 
-          devShells.default = mkShell {
-            inherit (pre-commit-check) shellHook;
-            packages = attrValues (import ./scripts { inherit pkgs system inputs; });
+          modules = map (p: ./profiles/${p}) profiles;
+
+          specialArgs = {
+            inherit dusk inputs;
           };
-        }
-      );
+        };
     in
-    perSystem
-    // {
+    {
       checks = mapAttrs (_: lib: lib.deployChecks self.deploy) deploy-rs.lib;
 
       deploy.nodes.server = {
         hostname = "server";
         fastConnection = true;
 
-        profiles.disconnect-server = {
+        profiles.server = {
           user = dusk.username;
           sshUser = dusk.username;
-          path = activate.nixos self.nixosConfigurations.server;
-        };
-      };
 
-      nixosConfigurations = {
-        bootstrap = nixpkgs.lib.nixosSystem {
-          pkgs = import nixpkgs {
-            system = "x86_64-linux";
-          };
-
-          modules = [ ./profiles/bootstrap ];
-
-          specialArgs = {
-            inherit dusk inputs;
-          };
-        };
-
-        server = nixpkgs.lib.nixosSystem {
-          pkgs = import nixpkgs {
-            system = "x86_64-linux";
-          };
-
-          modules = [
-            ./profiles/matrix-server
-            ./profiles/nostr-relay
-          ];
-
-          specialArgs = {
-            inherit dusk inputs;
+          path = activate.nixos nixos {
+            profiles = [
+              "matrix-server"
+              "nostr-relay"
+            ];
           };
         };
       };
-    };
+
+      nixosConfigurations.bootstrap = nixos { profiles = [ "bootstrap" ]; };
+    }
+    // flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+
+        inherit (pkgs) mkShell;
+
+        checks.pre-commit-check = pre-commit-hooks.lib.${system}.run {
+          src = ./.;
+
+          hooks = {
+            deadnix.enable = true;
+            nixfmt-rfc-style.enable = true;
+
+            shellcheck.enable = true;
+            shfmt.enable = true;
+          };
+        };
+      in
+      {
+        inherit checks;
+
+        devShells.default = mkShell {
+          inherit (checks.pre-commit-check) shellHook;
+
+          packages = attrValues (import ./scripts { inherit pkgs system inputs; });
+        };
+      }
+    );
 }
