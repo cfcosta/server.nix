@@ -30,5 +30,10 @@
       path = ./secrets/dendrite-sliding-sync.secret.age;
       generate = pkgs: ''${pkgs.openssl}/bin/openssl rand -hex 32 | tr -d '\n' > "$out"'';
     };
+
+    tor-ed25519 = {
+      path = ./secrets/dendrite.pem.age;
+      generate = pkgs: ''${pkgs.openssh}/bin/ssh-keygen -t ed25519 -f "$out" -N ""'';
+    };
   };
 }
