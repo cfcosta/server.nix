@@ -145,6 +145,8 @@
       {
         inherit checks;
 
+        packages.bluesky-pds = (pkgs.callPackage ./packages/bluesky-pds { });
+
         devShells.default = mkShell {
           inherit (checks.pre-commit-check) shellHook;
 

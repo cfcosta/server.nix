@@ -17,6 +17,7 @@ let
 in
 {
   imports = [
+    inputs.agenix.nixosModules.default
     ./services
     ./user.nix
   ];

@@ -1,14 +1,8 @@
-{
-  config,
-  inputs,
-  dusk,
-  ...
-}:
+{ config, dusk, ... }:
 {
   imports = [
     ../../common
     ./services
-    inputs.agenix.nixosModules.default
   ];
 
   config = {
