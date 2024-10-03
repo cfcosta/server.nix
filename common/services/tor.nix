@@ -38,7 +38,7 @@ in
 
         relay.onionServices.server = {
           version = 3;
-          secretKey = config.age.secrets.tor-secret-key;
+          secretKey = config.age.secrets.tor-secret-key.path;
 
           map = [
             {

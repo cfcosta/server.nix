@@ -7,7 +7,7 @@
 
   keys = {
     nodes.matrix-servers = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDhoa8rEi6Md2kHC6+9hlLK/zS6PmDYfiV0WkI4Y9f2t root@ghost"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDLVLXeD2c9/Q7HoWlccn3U95eb1hCwo+sQGpeaqlDYi root@ghost"
     ];
 
     users.cfcosta = [

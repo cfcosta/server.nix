@@ -112,12 +112,12 @@
           user = dusk.username;
           sshUser = dusk.username;
 
-          path = activate.nixos nixos {
+          path = activate.nixos (nixos {
             profiles = [
               "matrix-server"
               "nostr-relay"
             ];
-          };
+          });
         };
       };
 
