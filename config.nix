@@ -16,8 +16,19 @@
   };
 
   secrets = {
-    "dendrite.pem" = ./secrets/dendrite.pem.age;
-    "dendrite.secret" = ./secrets/dendrite.secret.age;
-    "dendrite-sliding-sync.secret" = ./secrets/dendrite-sliding-sync.secret.age;
+    "dendrite.pem" = {
+      path = ./secrets/dendrite.pem.age;
+      generate = pkgs: ''${pkgs.dendrite}/bin/generate-keys --private-key "$out"'';
+    };
+
+    "dendrite.secret" = {
+      path = ./secrets/dendrite.secret.age;
+      generate = pkgs: ''${pkgs.openssl}/bin/openssl rand -hex 32 | tr -d '\n' > "$out"'';
+    };
+
+    "dendrite-sliding-sync.secret" = {
+      path = ./secrets/dendrite-sliding-sync.secret.age;
+      generate = pkgs: ''${pkgs.openssl}/bin/openssl rand -hex 32 | tr -d '\n' > "$out"'';
+    };
   };
 }

@@ -14,20 +14,20 @@
   config = {
     age.secrets = {
       dendrite-pem = {
-        file = dusk.secrets."dendrite.pem";
+        file = dusk.secrets."dendrite.pem".path;
         mode = "0600";
         owner = config.dusk.dendrite.user;
         path = "/etc/dendrite/matrix_key.pem";
       };
 
       dendrite-shared-secret = {
-        file = dusk.secrets."dendrite.secret";
+        file = dusk.secrets."dendrite.secret".path;
         mode = "0600";
         owner = config.dusk.dendrite.user;
       };
 
       dendrite-sliding-sync-secret = {
-        file = dusk.secrets."dendrite-sliding-sync.secret";
+        file = dusk.secrets."dendrite-sliding-sync.secret".path;
         mode = "0600";
         owner = config.dusk.matrix-sliding-sync.user;
         path = "/etc/matrix-sliding-sync/env.sh";

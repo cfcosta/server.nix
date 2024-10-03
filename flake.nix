@@ -148,7 +148,16 @@
         devShells.default = mkShell {
           inherit (checks.pre-commit-check) shellHook;
 
-          packages = attrValues (import ./scripts { inherit pkgs system inputs; });
+          packages = attrValues (
+            import ./scripts {
+              inherit
+                dusk
+                inputs
+                pkgs
+                system
+                ;
+            }
+          );
         };
       }
     );
