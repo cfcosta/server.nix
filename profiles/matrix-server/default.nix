@@ -6,13 +6,8 @@
 }:
 {
   imports = [
-    ../common
-    ../common/nginx.nix
-    ../common/tor.nix
-    ./services/nginx.nix
-    ./services/postgresql.nix
-    ./services/dendrite.nix
-    ./services/matrix-sliding-sync.nix
+    ../../common
+    ./services
     inputs.agenix.nixosModules.default
   ];
 

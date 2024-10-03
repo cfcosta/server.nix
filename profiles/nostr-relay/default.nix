@@ -1,9 +1,7 @@
 { dusk, ... }:
 {
   imports = [
-    ../common
-    ../common/nginx.nix
-    ../common/tor.nix
+    ../../common
     ./services/chronicle.nix
   ];
 

@@ -1,15 +1,12 @@
 {
   config,
-  dusk,
   inputs,
   lib,
   pkgs,
   ...
 }:
 let
-  inherit (builtins) attrValues;
   inherit (lib)
-    flatten
     lowPrio
     mkDefault
     mkForce
@@ -19,13 +16,13 @@ let
   cfg = config.dusk;
 in
 {
-  options.dusk = {
-    username = mkOption {
-      type = types.str;
-      default = "dusk";
-      description = "The user to create (used for remote access, as root is disabled).";
-    };
+  imports = [
+    ./nginx.nix
+    ./tor.nix
+    ./user.nix
+  ];
 
+  options.dusk = {
     locale = mkOption {
       type = types.str;
       default = "en_US.UTF-8";
@@ -130,8 +127,6 @@ in
         allow-import-from-derivation = true;
         auto-optimise-store = true;
 
-        trusted-users = [ cfg.username ];
-
         experimental-features = [
           "nix-command"
           "flakes"
@@ -153,25 +148,13 @@ in
       };
 
       auditd.enable = mkDefault true;
-
-      sudo.extraRules = [
-        {
-          users = [ cfg.username ];
-          commands = [
-            {
-              command = "ALL";
-              options = [ "NOPASSWD" ];
-            }
-          ];
-        }
-      ];
     };
 
     services.openssh = {
       enable = true;
 
       settings = {
-        PermitRootLogin = mkForce "false";
+        PermitRootLogin = mkForce "no";
         PasswordAuthentication = mkForce false;
         ChallengeResponseAuthentication = mkForce false;
         GSSAPIAuthentication = mkForce false;
@@ -185,15 +168,5 @@ in
     };
 
     system.stateVersion = "24.11";
-
-    users.users = {
-      ${cfg.username} = {
-        extraGroups = [ "wheel" ];
-        isNormalUser = true;
-        openssh.authorizedKeys.keys = flatten (attrValues dusk.keys.users);
-      };
-
-      root.openssh.authorizedKeys.keys = flatten (attrValues (dusk.keys.users));
-    };
   };
 }

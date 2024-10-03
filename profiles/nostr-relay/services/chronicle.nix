@@ -129,7 +129,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    security.acme.certs.${cfg.url}.email = dusk.domainOwner;
+    security.acme.certs.${cfg.url}.email = dusk.email;
 
     services = {
       nginx = {

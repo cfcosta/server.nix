@@ -4,7 +4,7 @@
     security.acme = {
       acceptTerms = true;
 
-      certs.${dusk.domain}.email = dusk.domainOwner;
+      certs.${dusk.domain}.email = dusk.email;
     };
 
     services.nginx = {

@@ -82,6 +82,7 @@
     let
       inherit (builtins) attrValues mapAttrs;
       inherit (deploy-rs.lib.x86_64-linux) activate;
+      dusk = import ./config.nix;
 
       perSystem = flake-utils.lib.eachDefaultSystem (
         system:
@@ -123,8 +124,8 @@
         fastConnection = true;
 
         profiles.disconnect-server = {
-          user = "root";
-          sshUser = "root";
+          user = dusk.username;
+          sshUser = dusk.username;
           path = activate.nixos self.nixosConfigurations.server;
         };
       };
@@ -138,8 +139,7 @@
           modules = [ ./profiles/bootstrap ];
 
           specialArgs = {
-            inherit inputs;
-            dusk = import ./config.nix;
+            inherit dusk inputs;
           };
         };
 
@@ -154,8 +154,7 @@
           ];
 
           specialArgs = {
-            inherit inputs;
-            dusk = import ./config.nix;
+            inherit dusk inputs;
           };
         };
       };

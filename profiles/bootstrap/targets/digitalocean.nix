@@ -1,5 +1,4 @@
 {
-  config,
   dusk,
   lib,
   modulesPath,
@@ -43,7 +42,7 @@ in
 
         users = [
           "root"
-          config.dusk.username
+          dusk.username
         ];
       };
     };

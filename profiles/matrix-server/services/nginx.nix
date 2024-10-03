@@ -54,7 +54,7 @@ let
 in
 {
   config = mkIf cfg.enable {
-    security.acme.certs.${cfg.global.serverName}.email = dusk.domainOwner;
+    security.acme.certs.${cfg.global.serverName}.email = dusk.email;
 
     services.nginx.virtualHosts = {
       ${dusk.domain} = rootConfig;
