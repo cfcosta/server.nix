@@ -89,8 +89,6 @@ in
       };
     };
 
-    system.stateVersion = "24.11";
-
     i18n.defaultLocale = cfg.locale;
 
     i18n.extraLocaleSettings = {
@@ -155,13 +153,25 @@ in
       };
 
       auditd.enable = mkDefault true;
+
+      sudo.extraRules = [
+        {
+          users = [ cfg.username ];
+          commands = [
+            {
+              command = "ALL";
+              options = [ "NOPASSWD" ];
+            }
+          ];
+        }
+      ];
     };
 
     services.openssh = {
       enable = true;
 
       settings = {
-        PermitRootLogin = mkForce "prohibit-password";
+        PermitRootLogin = mkForce "false";
         PasswordAuthentication = mkForce false;
         ChallengeResponseAuthentication = mkForce false;
         GSSAPIAuthentication = mkForce false;
@@ -173,6 +183,8 @@ in
         PermitTunnel = mkForce false;
       };
     };
+
+    system.stateVersion = "24.11";
 
     users.users = {
       ${cfg.username} = {
