@@ -811,12 +811,6 @@ in
         Group = cfg.group;
         WorkingDirectory = cfg.rootDir;
       };
-
-      tmpfiles.rules = [
-        "d ${cfg.jetstream.storagePath} 0750 ${cfg.user} ${cfg.group} -"
-        "d ${cfg.mediaAPI.basePath} 0750 ${cfg.user} ${cfg.group} -"
-        "d ${cfg.syncAPI.search.indexPath} 0750 ${cfg.user} ${cfg.group} -"
-      ];
     };
 
     users = {

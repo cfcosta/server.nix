@@ -166,10 +166,6 @@ in
         WorkingDirectory = mkForce cfg.rootDir;
         EnvironmentFile = mkForce cfg.environmentFile;
       };
-
-      tmpfiles.rules = [
-        "d ${cfg.rootDir} 0750 ${cfg.user} ${cfg.group} -"
-      ];
     };
 
     users = {

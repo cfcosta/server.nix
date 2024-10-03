@@ -176,10 +176,6 @@ in
           WorkingDirectory = cfg.rootDir;
         };
       };
-
-      tmpfiles.rules = [
-        "d ${cfg.rootDir} 0750 ${cfg.user} ${cfg.group} -"
-      ];
     };
 
     users = {
