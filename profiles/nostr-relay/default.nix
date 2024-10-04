@@ -9,11 +9,11 @@
     chronicle = {
       enable = true;
 
-      ownerPubkey = "cfa3df9203c440a5b94b1f863094e683412ce9d422a7f99c5346e43fe2001d92";
-      name = "Disconnect Nostr Relay";
-      description = "The Nostr relay for the disconnect.ventures peeps.";
+      ownerPubkey = dusk.nostr.hex;
+      name = "disconnect.capital";
+      description = "The Nostr relay for the disconnect.capital peeps.";
       url = "nostr.${dusk.domain}";
-      icon = "";
+      icon = "https://nostr.${dusk.domain}/static/";
       contact = "_@disconnect.capital";
     };
 

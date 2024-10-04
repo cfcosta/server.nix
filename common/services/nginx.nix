@@ -21,11 +21,20 @@
         ${dusk.domain} = {
           enableACME = true;
           forceSSL = true;
+          locations."/static" = {
+            root = ./.;
+            tryFiles = "$uri =404";
+          };
         };
 
         ${dusk.tor.domain} = {
           enableACME = false;
           forceSSL = false;
+
+          locations."/static" = {
+            root = ./.;
+            tryFiles = "$uri =404";
+          };
         };
       };
     };

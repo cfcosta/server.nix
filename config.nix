@@ -4,6 +4,7 @@
   domain = "disconnect.capital";
   tor.domain = "2lpubahflv3rvtronjxw3lmtwpn5jyidt6rxc7rbrqbce4rbe3yiwuqd.onion";
   email = "_@disconnect.capital";
+  nostr.hex = "3238a74a7229b09415baf5850ff875780838f82831269a06ef8592f42bae1ac8";
 
   keys = {
     nodes.matrix-servers = [
