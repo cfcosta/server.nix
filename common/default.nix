@@ -1,25 +1,28 @@
 {
   config,
+  dusk,
   inputs,
   lib,
   pkgs,
   ...
 }:
 let
+  inherit (builtins) attrValues;
   inherit (lib)
+    flatten
     lowPrio
     mkDefault
     mkForce
     mkOption
     types
     ;
+
   cfg = config.dusk;
 in
 {
   imports = [
     inputs.agenix.nixosModules.default
     ./services
-    ./user.nix
   ];
 
   options.dusk = {
@@ -154,7 +157,7 @@ in
       enable = true;
 
       settings = {
-        PermitRootLogin = mkForce "no";
+        PermitRootLogin = mkForce "prohibit-password";
         PasswordAuthentication = mkForce false;
         ChallengeResponseAuthentication = mkForce false;
         GSSAPIAuthentication = mkForce false;
@@ -168,5 +171,7 @@ in
     };
 
     system.stateVersion = "24.11";
+
+    users.users.root.openssh.authorizedKeys.keys = flatten (attrValues dusk.keys.users);
   };
 }

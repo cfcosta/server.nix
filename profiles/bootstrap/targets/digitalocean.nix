@@ -39,11 +39,7 @@ in
       settings = {
         datasource_list = [ "DigitalOcean" ];
         datasource.DigitalOcean = { };
-
-        users = [
-          "root"
-          dusk.username
-        ];
+        users = [ "root" ];
       };
     };
 

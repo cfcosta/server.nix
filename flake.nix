@@ -109,8 +109,8 @@
         fastConnection = true;
 
         profiles.server = {
-          user = dusk.username;
-          sshUser = dusk.username;
+          user = "root";
+          sshUser = "root";
 
           path = activate.nixos (nixos {
             profiles = [

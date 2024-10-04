@@ -1,5 +1,4 @@
 {
-  username = "dusk";
   target = "vultr";
   domain = "disconnect.capital";
   tor.domain = "2lpubahflv3rvtronjxw3lmtwpn5jyidt6rxc7rbrqbce4rbe3yiwuqd.onion";
