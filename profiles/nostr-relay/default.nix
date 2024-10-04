@@ -3,6 +3,7 @@
   imports = [
     ../../common
     ./services/chronicle.nix
+    ./services/nginx.nix
   ];
 
   config.dusk = {
