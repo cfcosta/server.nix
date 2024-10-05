@@ -137,7 +137,7 @@ in
       matrix-sliding-sync = {
         inherit (cfg) environmentFile;
 
-        enable = true;
+        enable = cfg.enable;
         createDatabase = true;
 
         settings = {
@@ -175,7 +175,7 @@ in
         isSystemUser = true;
         group = cfg.group;
         home = cfg.rootDir;
-        createHome = false;
+        createHome = true;
       };
     };
   };

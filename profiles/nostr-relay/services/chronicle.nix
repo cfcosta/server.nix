@@ -183,7 +183,7 @@ in
         isSystemUser = true;
         group = cfg.group;
         home = cfg.rootDir;
-        createHome = false;
+        createHome = true;
       };
 
       groups.${cfg.group} = { };

@@ -1,9 +1,13 @@
-{ dusk, ... }:
+{
+  config,
+  dusk,
+  lib,
+  ...
+}:
 {
   config = {
     security.acme = {
       acceptTerms = true;
-
       certs.${dusk.domain}.email = dusk.email;
     };
 
@@ -21,18 +25,19 @@
         ${dusk.domain} = {
           enableACME = true;
           forceSSL = true;
+
           locations."/static" = {
-            root = ./.;
+            root = ../static;
             tryFiles = "$uri =404";
           };
         };
 
-        ${dusk.tor.domain} = {
+        ${dusk.tor.domain} = lib.mkIf config.dusk.tor.enable {
           enableACME = false;
           forceSSL = false;
 
           locations."/static" = {
-            root = ./.;
+            root = ../static;
             tryFiles = "$uri =404";
           };
         };

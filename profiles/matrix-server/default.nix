@@ -50,7 +50,7 @@
         environmentFile = config.age.secrets.dendrite-sliding-sync-secret.path;
       };
 
-      tor.enable = true;
+      tor.enable = false;
     };
   };
 }

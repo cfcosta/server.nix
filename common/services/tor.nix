@@ -27,7 +27,7 @@ in
       '';
 
       tor = {
-        enable = config.services.nginx.enable;
+        enable = config.dusk.tor.enable;
         enableGeoIP = false;
 
         settings = {
