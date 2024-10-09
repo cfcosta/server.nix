@@ -29,9 +29,9 @@ let
         grep "${name}.age" secrets/secrets.nix &>/dev/null || _fatal "The secret does not exist on the secrets file."
 
         out=$(mktemp)
-        cmd="$(echo -n ${generate})"
 
-        _info "Generating secret $(_red "${name}.age") with command: $(_blue "$cmd")"
+        # shellcheck disable=SC2016
+        _info "Generating secret $(_red "${name}.age") with command: $(_blue '${generate}')"
 
         ${generate}
 
@@ -71,7 +71,14 @@ in
 
   re-generate-secrets =
     let
-      secrets = map (s: "${generateSecret s}/bin/server-generate-secret") (attrNames dusk.secrets);
+      secrets = map (s: ''
+        HOME="$(mktemp -d)"
+        export HOME
+
+        _info "Generating secret: $(_red ${s})"
+
+        ${generateSecret s}/bin/server-generate-secret
+      '') (attrNames dusk.secrets);
       gen = concatStringsSep "\n\n" secrets;
     in
     pkgs.writeShellApplication {
@@ -86,9 +93,22 @@ in
   reencrypt-secrets = pkgs.writeShellApplication {
     name = "server-reencrypt-secrets";
 
+    runtimeInputs = [
+      inputs.agenix.packages.${system}.default
+    ];
+
     text = ''
       ${readFile ./lib.sh}
+
       [ -f secrets/secrets.nix ] || _fatal "You must be at the project root for this to work."
+
+      _info "Reencrypting all secrets"
+
+      cd secrets
+
+      agenix -r
+
+      _info "Done"
     '';
   };
 }

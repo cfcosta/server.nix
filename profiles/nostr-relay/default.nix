@@ -18,6 +18,6 @@
       contact = "_@disconnect.capital";
     };
 
-    tor.enable = false;
+    tor.enable = true;
   };
 }
