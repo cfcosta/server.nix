@@ -4,17 +4,12 @@
   pkgs,
   ...
 }:
-
 let
   inherit (lib) mkIf mkOverride;
-
-  dendrite = config.dusk.dendrite;
-  matrix-sliding-sync = config.dusk.matrix-sliding-sync;
 in
 {
-  config = mkIf (dendrite.enable || matrix-sliding-sync.enable) {
+  config = mkIf config.services.postgresql.enable {
     services.postgresql = {
-      enable = true;
       enableJIT = true;
       enableTCPIP = true;
 

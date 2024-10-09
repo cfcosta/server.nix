@@ -114,7 +114,6 @@
 
           path = activate.nixos (nixos {
             profiles = [
-              # "matrix-server"
               "nostr-relay"
             ];
           });
