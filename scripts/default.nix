@@ -79,10 +79,16 @@ in
 
       text = ''
         ${readFile ./lib.sh}
-
-        _info "hey"
-
         ${gen}
       '';
     };
+
+  reencrypt-secrets = pkgs.writeShellApplication {
+    name = "server-reencrypt-secrets";
+
+    text = ''
+      ${readFile ./lib.sh}
+      [ -f secrets/secrets.nix ] || _fatal "You must be at the project root for this to work."
+    '';
+  };
 }
