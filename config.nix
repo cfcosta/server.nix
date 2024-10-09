@@ -4,7 +4,7 @@ rec {
   tor.domain = "4gezqic2tc2lz6vmpnjavwnemu6m2k27nlrpvyyqy6j7yufe7bsuehad.onion";
   email = "_@disconnect.capital";
 
-  profiles.nostr-relay = {
+  profiles.nostr-relay = rec {
     ownerPubkey = "8a64d83fd8d8a8c5ae622417e733238a348c20dd823f3f49b7db0b3c51f87761";
 
     name = domain;
@@ -13,7 +13,10 @@ rec {
     icon = "https://${domain}/static/icon.png";
     contact = "_@disconnect.capital";
 
-    users.cfcosta.pubkey = "cfa3df9203c440a5b94b1f863094e683412ce9d422a7f99c5346e43fe2001d92";
+    users = {
+      _.pubkey = ownerPubkey;
+      cfcosta.pubkey = "cfa3df9203c440a5b94b1f863094e683412ce9d422a7f99c5346e43fe2001d92";
+    };
   };
 
   keys = {

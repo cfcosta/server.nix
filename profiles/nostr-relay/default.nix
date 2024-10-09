@@ -7,7 +7,16 @@
   ];
 
   config.dusk = {
-    chronicle = dusk.nostr // {
+    chronicle = {
+      inherit (dusk.profiles.nostr-relay)
+        ownerPubkey
+        name
+        description
+        url
+        icon
+        contact
+        ;
+
       enable = true;
     };
 

@@ -6,22 +6,21 @@
 }:
 let
   inherit (builtins) toJSON;
-  inherit (lib) mapAttrs mkIf;
+  inherit (lib) mapAttrs mapAttrs' mkIf;
 
   cfg = config.dusk.chronicle;
-  inherit (dusk.profiles.nostr-relay) ownerPubkey;
 
   nip05 = {
-    names = {
-      _ = ownerPubkey;
-    } // mapAttrs (_: user: user.pubkey) dusk.profiles.nostr-relay.users;
+    names = mapAttrs (_: user: user.pubkey) dusk.profiles.nostr-relay.users;
 
-    relays.${dusk.nostr.hex} = [
-      "wss://nostr.${dusk.domain}"
-      "wss://nostr.${dusk.tor.domain}"
-    ];
+    relays = mapAttrs' (_: user: {
+      name = user.pubkey;
+      value = [
+        "wss://nostr.${dusk.domain}"
+        "wss://nostr.${dusk.tor.domain}"
+      ];
+    }) dusk.profiles.nostr-relay.users;
   };
-
 in
 {
   config = mkIf cfg.enable {
