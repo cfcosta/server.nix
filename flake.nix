@@ -160,7 +160,7 @@
           inherit (checks.pre-commit-check) shellHook;
 
           packages =
-            [ pkgs.cloudflared ]
+            [ pkgs.awscli2 ]
             ++ attrValues (
               import ./scripts {
                 inherit

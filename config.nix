@@ -19,6 +19,8 @@ rec {
     };
   };
 
+  accounts.cloudflare.account_id = "18b5845d91b38a67938367ff0bd9f8c3";
+
   keys.users.cfcosta = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO7NVKxM60JPOU8GydRSNuUXDLiQdxA4C1I2VL8B8Iqr cfcosta@battlecruiser"
   ];
@@ -26,36 +28,27 @@ rec {
   secrets = {
     tor-ed25519 = {
       path = ./secrets/tor-ed25519.age;
-      generate = pkgs: ''
-        ${pkgs.tor}/bin/tor --keygen && cp ~/.tor/keys/ed25519_master_id_secret_key "$out"
-      '';
+      generate =
+        pkgs: "${pkgs.tor}/bin/tor --keygen && cp ~/.tor/keys/ed25519_master_id_secret_key \"$out\"";
     };
 
     "satellite-cdn-r2-access-key" = {
       path = ./secrets/satellite-cdn-r2-access-key.age;
-      generate = pkgs: ''
-        ${pkgs.cloudflared}/bin/cloudflared tunnel token list-r2-tokens --json | \
-          ${pkgs.jq}/bin/jq -r '.[] | select(.name=="satellite-cdn") | .accessKeyId // empty' || \
-        ${pkgs.cloudflared}/bin/cloudflared tunnel token generate-r2-token satellite-cdn --json | \
-          ${pkgs.jq}/bin/jq -r '.accessKeyId'
-      '';
+      generate =
+        _:
+        "CLOUDFLARE_ACCOUNT_ID=\"${accounts.cloudflare.account_id}\" bash scripts/cloudflare-get-keys.sh satellite-cdn && cat access-key > \"$out\" && rm access-key secret-access-key";
     };
 
     "satellite-cdn-r2-secret-key" = {
       path = ./secrets/satellite-cdn-r2-secret-key.age;
-      generate = pkgs: ''
-        ${pkgs.cloudflared}/bin/cloudflared tunnel token list-r2-tokens --json | \
-          ${pkgs.jq}/bin/jq -r '.[] | select(.name=="satellite-cdn") | .secretAccessKey // empty' || \
-        ${pkgs.cloudflared}/bin/cloudflared tunnel token generate-r2-token satellite-cdn --json | \
-          ${pkgs.jq}/bin/jq -r '.secretAccessKey'
-      '';
+      generate =
+        _:
+        "CLOUDFLARE_ACCOUNT_ID=\"${accounts.cloudflare.account_id}\" bash scripts/cloudflare-get-keys.sh satellite-cdn && cat secret-access-key > \"$out\" && rm access-key secret-access-key";
     };
 
     "satellite-cdn-app-secret" = {
       path = ./secrets/satellite-cdn-app-secret.age;
-      generate = pkgs: ''
-        ${pkgs.openssl}/bin/openssl rand -hex 32 >"$out"
-      '';
+      generate = pkgs: "${pkgs.openssl}/bin/openssl rand -hex 32 >\"$out\"";
     };
   };
 }

@@ -42,6 +42,10 @@ _white() {
 	echo -e "${COLORS_WHITE}$1${COLORS_NONE}"
 }
 
+_debug() {
+	echo -e ":: $(_purple "[DEBUG]") $1" >&2
+}
+
 _info() {
 	echo -e ":: $(_green "[INFO]") $1"
 }
@@ -92,10 +96,10 @@ setup_host_darwin() {
 	check_nix
 
 	# Make sure we are connected to the Nix Daemon
-	# shellcheck source=/dev/null
 	if [ -e "${NIX_ROOT}/etc/profile.d/nix-daemon.sh" ]; then
 		_info "Found Nix Daemon script: $(_blue "${NIX_ROOT}/etc/profile.d/nix-daemon.sh")"
 
+		# shellcheck source=/dev/null
 		. "${NIX_ROOT}/etc/profile.d/nix-daemon.sh"
 	fi
 }

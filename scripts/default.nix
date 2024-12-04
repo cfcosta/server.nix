@@ -23,7 +23,11 @@ let
     pkgs.writeShellApplication {
       name = "server-generate-secret";
 
-      runtimeInputs = with pkgs; [ age ];
+      runtimeInputs = with pkgs; [
+        age
+        awscli2
+        jq
+      ];
 
       text = ''
         ${readFile ./lib.sh}
@@ -104,9 +108,6 @@ rec {
       ];
 
       text = ''
-        HOME="$(mktemp -d)"
-        export HOME
-
         ${readFile ./lib.sh}
         ${gen}
       '';
