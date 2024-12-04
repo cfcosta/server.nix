@@ -1,7 +1,15 @@
+with builtins;
 let
   config = import ../config.nix;
-  inherit (config.keys) users nodes;
+
+  hosts = filter (k: k != "" && k != [ ]) (split "\n" (readFile ./keys));
+  users = concatLists (attrValues config.keys.users);
 in
-{
-  "tor-ed25519.age".publicKeys = users.cfcosta ++ nodes.server;
-}
+listToAttrs (
+  map (name: {
+    inherit name;
+    value = {
+      publicKeys = hosts ++ users;
+    };
+  }) (filter (name: match ".*\\.age$" name != null) (attrNames (readDir ./.)))
+)

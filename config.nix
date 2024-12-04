@@ -19,22 +19,14 @@ rec {
     };
   };
 
-  keys = {
-    nodes.server = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC53rEpNA+0GQtsbkEyRfUeaFo2k9+U2w6oeEYqljz7S root@ghost"
-    ];
+  keys.users.cfcosta = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO7NVKxM60JPOU8GydRSNuUXDLiQdxA4C1I2VL8B8Iqr cfcosta@battlecruiser"
+  ];
 
-    users.cfcosta = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO7NVKxM60JPOU8GydRSNuUXDLiQdxA4C1I2VL8B8Iqr cfcosta@battlecruiser"
-    ];
-  };
-
-  secrets = {
-    tor-ed25519 = {
-      path = ./secrets/tor-ed25519.age;
-      generate = pkgs: ''
-        ${pkgs.tor}/bin/tor --keygen && cp ~/.tor/keys/ed25519_master_id_secret_key "$out"
-      '';
-    };
+  secrets.tor-ed25519 = {
+    path = ./secrets/tor-ed25519.age;
+    generate = pkgs: ''
+      ${pkgs.tor}/bin/tor --keygen && cp ~/.tor/keys/ed25519_master_id_secret_key "$out"
+    '';
   };
 }

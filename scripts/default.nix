@@ -5,8 +5,11 @@
   inputs,
 }:
 let
-  inherit (builtins) attrNames readFile;
-  inherit (inputs) deploy-rs nixos-anywhere;
+  inherit (builtins)
+    attrNames
+    readFile
+    ;
+  inherit (inputs) deploy-rs nixos-anywhere agenix;
   inherit (pkgs.lib) concatStringsSep;
 
   generateSecret =
@@ -26,7 +29,6 @@ let
         ${readFile ./lib.sh}
 
         [ ! -d "secrets" ] && _fatal "You must be at the repository root folder."
-        grep "${name}.age" secrets/secrets.nix &>/dev/null || _fatal "The secret does not exist on the secrets file."
 
         out=$(mktemp)
 
@@ -44,12 +46,13 @@ let
     };
 in
 {
-  agenix = inputs.agenix.packages.${system}.default;
+  agenix = agenix.packages.${system}.default;
 
   bootstrap = pkgs.writeShellApplication {
     name = "server-bootstrap";
 
     runtimeInputs = [
+      agenix.packages.${system}.default
       nixos-anywhere.packages.${system}.default
     ];
 
@@ -72,9 +75,6 @@ in
   re-generate-secrets =
     let
       secrets = map (s: ''
-        HOME="$(mktemp -d)"
-        export HOME
-
         _info "Generating secret: $(_red ${s})"
 
         ${generateSecret s}/bin/server-generate-secret
@@ -84,7 +84,15 @@ in
     pkgs.writeShellApplication {
       name = "server-re-generate-secrets";
 
+      runtimeInputs = [
+        inputs.agenix.packages.${system}.default
+        pkgs.openssl
+      ];
+
       text = ''
+        HOME="$(mktemp -d)"
+        export HOME
+
         ${readFile ./lib.sh}
         ${gen}
       '';
@@ -94,7 +102,7 @@ in
     name = "server-reencrypt-secrets";
 
     runtimeInputs = [
-      inputs.agenix.packages.${system}.default
+      agenix.packages.${system}.default
     ];
 
     text = ''
