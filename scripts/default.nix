@@ -58,7 +58,9 @@ in
 
     text = ''
       ${readFile ./lib.sh}
-      ${readFile ./bootstrap.sh}
+      [ -f scripts/bootstrap.sh ] || _fatal "Bootstrap script is missing!"
+
+      . scripts/bootstrap.sh
     '';
   };
 
