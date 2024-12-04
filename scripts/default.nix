@@ -9,7 +9,7 @@ let
     attrNames
     readFile
     ;
-  inherit (inputs) deploy-rs nixos-anywhere agenix;
+  inherit (inputs) deploy-rs;
   inherit (pkgs.lib) concatStringsSep;
 
   generateSecret =
@@ -45,22 +45,34 @@ let
       '';
     };
 in
-{
-  agenix = agenix.packages.${system}.default;
+rec {
+  agenix = inputs.agenix.packages.${system}.default;
 
   bootstrap = pkgs.writeShellApplication {
     name = "server-bootstrap";
 
     runtimeInputs = [
-      agenix.packages.${system}.default
-      nixos-anywhere.packages.${system}.default
+      inputs.agenix.packages.${system}.default
+      inputs.nixos-anywhere.packages.${system}.default
     ];
 
     text = ''
       ${readFile ./lib.sh}
       [ -f scripts/bootstrap.sh ] || _fatal "Bootstrap script is missing!"
 
+      # shellcheck source=/dev/null
       . scripts/bootstrap.sh
+    '';
+  };
+
+  update-keys = pkgs.writeShellApplication {
+    name = "server-update-keys";
+
+    text = ''
+      ${readFile ./lib.sh}
+      ip="$1"
+      ssh-keyscan -t ed25519 "$ip" | grep -v "^#" | awk '{print $2,$3,"root@server"}' >> secrets/keys
+      exec ${reencrypt-secrets}/bin/server-reencrypt-secrets
     '';
   };
 
@@ -104,7 +116,7 @@ in
     name = "server-reencrypt-secrets";
 
     runtimeInputs = [
-      agenix.packages.${system}.default
+      inputs.agenix.packages.${system}.default
     ];
 
     text = ''
