@@ -26,9 +26,11 @@
           enableACME = true;
           forceSSL = true;
 
-          locations."/static" = {
-            root = ../static;
-            tryFiles = "$uri =404";
+          locations = {
+            "/static" = {
+              root = ../static;
+              tryFiles = "$uri =404";
+            };
           };
         };
 

@@ -21,7 +21,7 @@ let
     pname = "chronicle-unwrapped";
     version = inputs.chronicle.shortRev;
     src = inputs.chronicle;
-    vendorHash = "sha256-6vzytQ4e+ECMGZMUpo9EPdI8Bw0W81+aVdqqYRohHJU=";
+    vendorHash = "sha256-Q+UGrk308O114TpSttJTIfi2itx8OiINGCGI4P4RtVQ=";
   };
 
   service = pkgs.symlinkJoin {
@@ -40,89 +40,103 @@ let
         --set RELAY_CONTACT "${cfg.contact}" \
         --set REFRESH_INTERVAL "${toString cfg.refreshInterval}" \
         --set MIN_FOLLOWERS "${toString cfg.minFollowers}" \
-        --set FETCH_SYNC "${if cfg.fetchSync then "TRUE" else "FALSE"}"
+        --set FETCH_SYNC "${if cfg.fetchSync then "TRUE" else "FALSE"}" \
+        --set BLOSSOM_ASSETS_PATH "${cfg.blossomAssetsPath}" \
+        --set BLOSSOM_PUBLIC_URL "http://127.0.0.1:${toString (cfg.port + 1)}"
     '';
   };
 in
 {
   options.dusk.chronicle = {
-    enable = mkEnableOption "Enable the Chronicle Nostr Relay";
+    enable = mkEnableOption "Enable Chronicle Nostr Relay";
 
     ownerPubkey = mkOption {
-      description = "The pubkey for the owner of this Nostr Relay.";
+      description = "pubkey for the owner of this Nostr Relay";
       type = types.str;
     };
 
     name = mkOption {
-      description = "The name of the Nostr Relay.";
+      description = "name of the Nostr Relay";
       type = types.str;
     };
 
     description = mkOption {
-      description = "The description of the Nostr Relay.";
+      description = "description of the Nostr Relay";
       type = types.str;
     };
 
     url = mkOption {
-      description = "The URL of the Nostr Relay.";
+      description = "URL of the Nostr Relay";
       type = types.str;
       default = "nostr.${dusk.domain}";
     };
 
     torUrl = mkOption {
-      description = "The URL of the Nostr Relay in the Onion Network.";
+      description = "URL of the Nostr Relay in the Onion Network";
       type = types.str;
       default = "nostr.${dusk.tor.domain}";
     };
 
     port = mkOption {
-      description = "The port of the Nostr Relay.";
+      description = "port of the Nostr Relay";
       type = types.int;
       default = 8080;
     };
 
     icon = mkOption {
-      description = "The icon URL of the Nostr Relay.";
+      description = "icon URL of the Nostr Relay";
       type = types.str;
     };
 
     contact = mkOption {
-      description = "The contact information for the Nostr Relay.";
+      description = "contact information for the Nostr Relay";
       type = types.str;
     };
 
     rootDir = mkOption {
-      description = "The path for all Nostr relay configuration";
+      description = "path for all Nostr relay configuration";
       type = types.str;
       default = "/var/lib/chronicle";
     };
 
+    dbPath = mkOption {
+      description = "path to the database directory";
+      type = types.str;
+      default = "${cfg.rootDir}/db";
+    };
+
+    blossomAssetsPath = mkOption {
+      description = "location to save downloaded Blossom media";
+      type = types.str;
+      default = "${cfg.rootDir}/blossom";
+    };
+
     refreshInterval = mkOption {
-      description = "The refresh interval for the Nostr Relay.";
+      description = "refresh interval for the Nostr Relay";
       type = types.int;
       default = 24;
     };
 
     minFollowers = mkOption {
-      description = "The minimum number of followers for the Nostr Relay.";
+      description = "minimum number of followers for the Nostr Relay";
       type = types.int;
       default = 3;
     };
 
     fetchSync = mkOption {
-      description = "Whether or not to allow the Nostr Relay to fetch old notes.";
+      description = "whether or not to allow the Nostr Relay to fetch old notes";
       type = types.bool;
       default = true;
     };
 
     user = mkOption {
-      description = "The user to run the Nostr Relay service.";
+      description = "user to run the Nostr Relay service";
       type = types.str;
       default = "chronicle";
     };
 
     group = mkOption {
-      description = "The group to run the Nostr Relay service.";
+      description = "group to run the Nostr Relay service";
       type = types.str;
       default = "chronicle";
     };
@@ -138,13 +152,24 @@ in
             enableACME = true;
             forceSSL = true;
 
-            locations."/" = {
-              extraConfig = optionalString config.services.tor.enable ''
-                add_header Onion-Location http://${cfg.torUrl}$request_uri;
-              '';
+            locations = {
+              "/" = {
+                extraConfig = optionalString config.services.tor.enable ''
+                  add_header Onion-Location http://${cfg.torUrl}$request_uri;
+                '';
 
-              proxyPass = "http://127.0.0.1:${toString cfg.port}";
-              proxyWebsockets = true;
+                proxyPass = "http://127.0.0.1:${toString cfg.port}";
+                proxyWebsockets = true;
+              };
+
+              "/blossom" = {
+                extraConfig = optionalString config.services.tor.enable ''
+                  add_header Onion-Location http://${cfg.torUrl}$request_uri;
+                '';
+
+                proxyPass = "http://127.0.0.1:${toString (cfg.port + 1)}";
+                proxyWebsockets = true;
+              };
             };
           };
 
