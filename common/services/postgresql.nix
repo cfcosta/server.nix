@@ -13,7 +13,7 @@ in
       enableJIT = true;
       enableTCPIP = true;
 
-      package = pkgs.postgresql_16_jit;
+      package = pkgs.postgresql_17_jit;
 
       authentication = mkOverride 10 ''
         local all all trust
