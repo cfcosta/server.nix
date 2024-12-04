@@ -23,6 +23,11 @@
       flake = false;
     };
 
+    satellite-cdn = {
+      url = "github:lovvtide/satellite-cdn";
+      flake = false;
+    };
+
     deploy-rs = {
       url = "github:serokell/deploy-rs";
 
@@ -120,7 +125,14 @@
         };
       };
 
-      nixosConfigurations.bootstrap = nixos { profiles = [ "bootstrap" ]; };
+      nixosConfigurations = {
+        bootstrap = nixos { profiles = [ "bootstrap" ]; };
+        server = nixos {
+          profiles = [
+            "nostr-relay"
+          ];
+        };
+      };
     }
     // flake-utils.lib.eachDefaultSystem (
       system:
@@ -147,16 +159,18 @@
         devShells.default = mkShell {
           inherit (checks.pre-commit-check) shellHook;
 
-          packages = attrValues (
-            import ./scripts {
-              inherit
-                dusk
-                inputs
-                pkgs
-                system
-                ;
-            }
-          );
+          packages =
+            [ pkgs.cloudflared ]
+            ++ attrValues (
+              import ./scripts {
+                inherit
+                  dusk
+                  inputs
+                  pkgs
+                  system
+                  ;
+              }
+            );
         };
       }
     );

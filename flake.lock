@@ -347,8 +347,25 @@
         "nixos-anywhere": "nixos-anywhere",
         "nixpkgs": "nixpkgs",
         "pre-commit-hooks": "pre-commit-hooks",
+        "satellite-cdn": "satellite-cdn",
         "systems": "systems",
         "treefmt-nix": "treefmt-nix"
+      }
+    },
+    "satellite-cdn": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1724500191,
+        "narHash": "sha256-+pFo13mXY4tYeLLna2r/tNvjDDjjrdd1Y7QyqtO4nOk=",
+        "owner": "lovvtide",
+        "repo": "satellite-cdn",
+        "rev": "42086bdec4582725ad2ee042e809f33792274380",
+        "type": "github"
+      },
+      "original": {
+        "owner": "lovvtide",
+        "repo": "satellite-cdn",
+        "type": "github"
       }
     },
     "systems": {

@@ -42,7 +42,7 @@ let
         --set MIN_FOLLOWERS "${toString cfg.minFollowers}" \
         --set FETCH_SYNC "${if cfg.fetchSync then "TRUE" else "FALSE"}" \
         --set BLOSSOM_ASSETS_PATH "${cfg.blossomAssetsPath}" \
-        --set BLOSSOM_PUBLIC_URL "http://127.0.0.1:${toString (cfg.port + 1)}"
+        --set BLOSSOM_PUBLIC_URL "http://${config.dusk.satellite-cdn.cdnEndpoint}"
     '';
   };
 in
@@ -159,15 +159,6 @@ in
                 '';
 
                 proxyPass = "http://127.0.0.1:${toString cfg.port}";
-                proxyWebsockets = true;
-              };
-
-              "/blossom" = {
-                extraConfig = optionalString config.services.tor.enable ''
-                  add_header Onion-Location http://${cfg.torUrl}$request_uri;
-                '';
-
-                proxyPass = "http://127.0.0.1:${toString (cfg.port + 1)}";
                 proxyWebsockets = true;
               };
             };
