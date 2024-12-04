@@ -170,7 +170,7 @@ in
       };
     };
 
-    system.stateVersion = "24.11";
+    system.stateVersion = "25.05";
 
     users.users.root.openssh.authorizedKeys.keys = flatten (attrValues dusk.keys.users);
   };
