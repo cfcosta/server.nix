@@ -11,7 +11,7 @@ let
   cfg = config.dusk.chronicle;
 
   nip05 = {
-    names = mapAttrs (_: user: user.pubkey) dusk.profiles.nostr-relay.users;
+    names = mapAttrs (_: user: user.pubkey) dusk.profiles.nostr.users;
 
     relays = mapAttrs' (_: user: {
       name = user.pubkey;
@@ -19,7 +19,7 @@ let
         "wss://nostr.${dusk.domain}"
         "wss://nostr.${dusk.tor.domain}"
       ];
-    }) dusk.profiles.nostr-relay.users;
+    }) dusk.profiles.nostr.users;
   };
 in
 {

@@ -109,17 +109,17 @@
     {
       checks = mapAttrs (_: lib: lib.deployChecks self.deploy) deploy-rs.lib;
 
-      deploy.nodes.server = {
-        hostname = "server";
+      deploy.nodes.nostr = {
+        hostname = "nostr";
         fastConnection = true;
 
-        profiles.server = {
+        profiles.nostr = {
           user = "root";
           sshUser = "root";
 
           path = activate.nixos (nixos {
             profiles = [
-              "nostr-relay"
+              "nostr"
             ];
           });
         };
@@ -127,9 +127,9 @@
 
       nixosConfigurations = {
         bootstrap = nixos { profiles = [ "bootstrap" ]; };
-        server = nixos {
+        nostr = nixos {
           profiles = [
-            "nostr-relay"
+            "nostr"
           ];
         };
       };
@@ -147,7 +147,6 @@
           hooks = {
             deadnix.enable = true;
             nixfmt-rfc-style.enable = true;
-
             shellcheck.enable = true;
             shfmt.enable = true;
           };
@@ -156,21 +155,21 @@
       {
         inherit checks;
 
+        packages = mapAttrs (name: config: config.config.system.build.toplevel) self.nixosConfigurations;
+
         devShells.default = mkShell {
           inherit (checks.pre-commit-check) shellHook;
 
-          packages =
-            [ pkgs.awscli2 ]
-            ++ attrValues (
-              import ./scripts {
-                inherit
-                  dusk
-                  inputs
-                  pkgs
-                  system
-                  ;
-              }
-            );
+          packages = attrValues (
+            import ./scripts {
+              inherit
+                dusk
+                inputs
+                pkgs
+                system
+                ;
+            }
+          );
         };
       }
     );

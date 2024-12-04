@@ -4,7 +4,7 @@ rec {
   tor.domain = "4gezqic2tc2lz6vmpnjavwnemu6m2k27nlrpvyyqy6j7yufe7bsuehad.onion";
   email = "_@disconnect.capital";
 
-  profiles.nostr-relay = rec {
+  profiles.nostr = rec {
     ownerPubkey = "8a64d83fd8d8a8c5ae622417e733238a348c20dd823f3f49b7db0b3c51f87761";
 
     name = domain;

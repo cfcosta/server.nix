@@ -29,7 +29,7 @@
 
   config.dusk = {
     chronicle = {
-      inherit (dusk.profiles.nostr-relay)
+      inherit (dusk.profiles.nostr)
         ownerPubkey
         name
         description
@@ -43,15 +43,17 @@
 
     satellite-cdn = {
       enable = true;
+
       s3AccessKeyId = config.age.secrets."satellite-cdn-r2-access-key".path;
       s3SecretAccessKey = config.age.secrets."satellite-cdn-r2-secret-key".path;
       appSecretKey = config.age.secrets."satellite-cdn-app-secret".path;
+
       s3Bucket = "satellite-cdn";
       cfAccountId = dusk.accounts.cloudflare.account_id;
       lightningProviderPubkey = "your-lightning-provider-pubkey";
       lightningCallbackUrl = "your-lightning-callback-url";
       cdnEndpoint = "cdn.${dusk.domain}";
-      blobEndpoint = "blob.${dusk.domain}";
+      blobEndpoint = "https://blob.${dusk.domain}";
     };
 
     tor.enable = true;
