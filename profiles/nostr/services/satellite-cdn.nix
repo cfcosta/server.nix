@@ -6,6 +6,7 @@
   ...
 }:
 let
+  inherit (builtins) fromJSON readFile;
   inherit (lib)
     mkEnableOption
     mkIf
@@ -15,14 +16,31 @@ let
 
   cfg = config.dusk.satellite-cdn;
 
-  runtimeEnvFile = "/run/satellite-cdn/env";
+  EnvFile = "/run/satellite-cdn/env";
+
+  version = (fromJSON (readFile "${inputs.satellite-cdn}/package.json")).version;
 
   satellite-cdn = pkgs.buildNpmPackage {
     pname = "satellite-cdn";
-    version = "1.0.0";
+    inherit version;
     src = inputs.satellite-cdn;
     npmDepsHash = "sha256-Q07PVrEhZW7BFrZRGkpPE4UgFa2zYOMl/3WxMTmo2Wg=";
     dontNpmBuild = true;
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postInstall = ''
+      mkdir -p $out/bin
+
+      # Append start code to index.js
+      echo '
+      start().catch(error => {
+        console.error("Failed to start server:", error);
+        process.exit(1);
+      });' >> $out/lib/node_modules/satellite-cdn/index.js
+
+      makeWrapper ${pkgs.nodejs}/bin/node $out/bin/satellite-cdn \
+        --add-flags "$out/lib/node_modules/satellite-cdn/index.js" \
+        --chdir "$out/lib/node_modules/satellite-cdn"
+    '';
   };
 
   envFile = pkgs.writeText "satellite-cdn-env-template" ''
@@ -135,9 +153,13 @@ in
   };
 
   config = mkIf cfg.enable {
+    environment.systemPackages = [
+      satellite-cdn
+    ];
+
     system.activationScripts."satellite-cdn-env" = ''
-      mkdir -p "$(dirname ${runtimeEnvFile})"
-      cp ${envFile} ${runtimeEnvFile}
+      mkdir -p "$(dirname ${EnvFile})"
+      cp ${envFile} ${EnvFile}
 
       r2_access_key=$(cat "${cfg.s3AccessKeyId}")
       r2_secret_key=$(cat "${cfg.s3SecretAccessKey}")
@@ -147,10 +169,10 @@ in
         -e "s#@r2-access-key@#$r2_access_key#" \
         -e "s#@r2-secret-key@#$r2_secret_key#" \
         -e "s#@app-secret@#$app_secret#" \
-        "${runtimeEnvFile}"
+        "${EnvFile}"
         
-      chmod 600 ${runtimeEnvFile}
-      chown ${cfg.user}:${cfg.group} ${runtimeEnvFile}
+      chmod 600 ${EnvFile}
+      chown ${cfg.user}:${cfg.group} ${EnvFile}
     '';
 
     services.nginx.virtualHosts.${cfg.cdnEndpoint} = {
@@ -169,12 +191,12 @@ in
       wantedBy = [ "multi-user.target" ];
 
       serviceConfig = {
-        ExecStart = "${pkgs.nodejs}/bin/node ${satellite-cdn}/lib/node_modules/satellite-cdn/index.js";
-        EnvironmentFile = "${runtimeEnvFile}";
+        ExecStart = "${satellite-cdn}/bin/satellite-cdn";
+        EnvironmentFile = "${EnvFile}";
+        Environment = "NODE_ENV=production CONFIG_PATH=${EnvFile}";
         Restart = "always";
         User = cfg.user;
         Group = cfg.group;
-        WorkingDirectory = cfg.dbPath;
       };
     };
 

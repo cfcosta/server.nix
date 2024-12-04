@@ -116,6 +116,12 @@
         profiles.nostr = {
           user = "root";
           sshUser = "root";
+          sshOpts = [
+            "-o"
+            "StrictHostKeyChecking=no"
+            "-o"
+            "UserKnownHostsFile=/dev/null"
+          ];
 
           path = activate.nixos (nixos {
             profiles = [
@@ -155,7 +161,7 @@
       {
         inherit checks;
 
-        packages = mapAttrs (name: config: config.config.system.build.toplevel) self.nixosConfigurations;
+        packages = mapAttrs (_: config: config.config.system.build.toplevel) self.nixosConfigurations;
 
         devShells.default = mkShell {
           inherit (checks.pre-commit-check) shellHook;
