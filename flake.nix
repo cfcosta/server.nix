@@ -93,6 +93,7 @@
         {
           system ? "x86_64-linux",
           profiles ? [ ],
+          target ? "qemu",
         }:
         nixpkgs.lib.nixosSystem {
           pkgs = import nixpkgs {
@@ -102,37 +103,57 @@
           modules = map (p: ./profiles/${p}) profiles;
 
           specialArgs = {
-            inherit dusk inputs;
+            inherit dusk inputs target;
           };
         };
     in
     {
       checks = mapAttrs (_: lib: lib.deployChecks self.deploy) deploy-rs.lib;
 
-      deploy.nodes.nostr = {
-        hostname = "nostr";
-        fastConnection = true;
-
-        profiles.nostr = {
-          user = "root";
-          sshUser = "root";
-          sshOpts = [
-            "-o"
-            "StrictHostKeyChecking=no"
-            "-o"
-            "UserKnownHostsFile=/dev/null"
-          ];
-
+      deploy.nodes = rec {
+        vm = nostr // {
           path = activate.nixos (nixos {
             profiles = [
               "nostr"
             ];
           });
         };
+
+        nostr = {
+          hostname = "nostr";
+          fastConnection = true;
+
+          profiles.nostr = {
+            user = "root";
+            sshUser = "root";
+            sshOpts = [
+              "-o"
+              "StrictHostKeyChecking=no"
+              "-o"
+              "UserKnownHostsFile=/dev/null"
+            ];
+
+            path = activate.nixos (nixos {
+              target = "vultr";
+
+              profiles = [
+                "nostr"
+              ];
+            });
+          };
+        };
       };
 
       nixosConfigurations = {
         bootstrap = nixos { profiles = [ "bootstrap" ]; };
+
+        vm = nixos {
+          profiles = [
+            "bootstrap"
+            "nostr"
+          ];
+        };
+
         nostr = nixos {
           profiles = [
             "nostr"

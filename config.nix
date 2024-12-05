@@ -1,5 +1,4 @@
 rec {
-  target = "vultr";
   domain = "disconnect.capital";
   tor.domain = "4gezqic2tc2lz6vmpnjavwnemu6m2k27nlrpvyyqy6j7yufe7bsuehad.onion";
   email = "_@disconnect.capital";

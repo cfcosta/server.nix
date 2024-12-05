@@ -42,7 +42,7 @@ in
                 mountpoint = "/boot";
               };
             };
-            root = {
+            nixos = {
               size = "100%";
               content = {
                 type = "filesystem";

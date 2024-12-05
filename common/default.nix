@@ -47,7 +47,7 @@ in
 
   config = {
     boot.loader.grub = {
-      enable = true;
+      enable = lib.mkDefault true;
       forceInstall = lib.mkDefault false;
 
       efiSupport = true;
@@ -79,12 +79,12 @@ in
 
     fileSystems = {
       "/boot" = {
-        device = "/dev/disk/by-partlabel/disk-main-ESP";
+        device = lib.mkForce "/dev/disk/by-partlabel/disk-main-ESP";
         fsType = "vfat";
       };
 
       "/" = {
-        device = "/dev/disk/by-partlabel/disk-main-root";
+        device = lib.mkForce "/dev/disk/by-partlabel/disk-main-nixos";
         fsType = "ext4";
       };
     };
