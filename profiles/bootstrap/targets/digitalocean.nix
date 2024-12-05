@@ -1,7 +1,7 @@
 {
-  dusk,
   lib,
   modulesPath,
+  target,
   ...
 }:
 let
@@ -17,7 +17,7 @@ in
     (modulesPath + "/virtualisation/digital-ocean-config.nix")
   ];
 
-  config = mkIf (dusk.target == "digitalocean") {
+  config = mkIf (target == "digitalocean") {
     boot.loader = {
       grub.enable = mkForce false;
       systemd-boot.enable = true;
